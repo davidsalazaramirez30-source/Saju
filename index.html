@@ -532,9 +532,9 @@
   <nav class="nav-pill">
     <span class="logo" data-cfg="nombreCorto" onclick="window.scrollTo({top:0,behavior:'smooth'})">Saju</span>
     <div class="nav-links">
-      <a href="#marcas">Marcas</a>
-      <a href="#tienda">Tienda</a>
-      <a class="nav-wa" data-cfg-href="wa" href="#" target="_blank" rel="noopener">Escríbenos 💬</a>
+      <a href="#marcas" data-ed="nav.marcas">Marcas</a>
+      <a href="#tienda" data-ed="nav.tienda">Tienda</a>
+      <a class="nav-wa" data-cfg-href="wa" href="#" target="_blank" rel="noopener" data-ed="nav.wa">Escríbenos 💬</a>
       <button class="cart-btn" id="navCartBtn" type="button" aria-label="Abrir carrito">
         🛍️ Carrito <span class="cart-count" id="navCartCount">0</span>
       </button>
@@ -616,7 +616,7 @@
   <!-- TIENDA -->
   <section class="sec reveal" id="tienda">
     <div class="sec-head">
-      <span class="kicker">los consentidos de <span data-cfg="nombreCorto">Saju</span> 🥰</span>
+      <span class="kicker" data-ed="tienda.kicker">los consentidos de <span data-cfg="nombreCorto">Saju</span> 🥰</span>
       <h2 data-ed="tienda.title">La tienda</h2>
       <p data-ed="tienda.text">Filtra por categoría, toca un producto para ver su detalle y agrégalo al carrito. 💕</p>
     </div>
@@ -630,7 +630,7 @@
     <h2 data-ed="final.title">¿Lista para brillar? 💖</h2>
     <div class="sub" data-ed="final.sub">Llena tu carrito y envíanos tu pedido ✨</div>
     <div class="cta-row">
-      <button class="btn btn-pink" type="button" onclick="openCart()">🛍️ Ver mi carrito</button>
+      <button class="btn btn-pink" type="button" onclick="openCart()" data-ed="final.btnCart">🛍️ Ver mi carrito</button>
       <a class="btn btn-wa" data-cfg-href="wa" href="#" target="_blank" rel="noopener">
         <svg class="ico" viewBox="0 0 32 32"><path d="M16 .4C7.4.4.4 7.4.4 16c0 2.8.7 5.4 2 7.7L.3 31.6l8.1-2.1c2.2 1.2 4.8 1.9 7.6 1.9 8.6 0 15.6-7 15.6-15.6S24.6.4 16 .4zm0 28.5c-2.5 0-4.8-.7-6.8-1.8l-.5-.3-4.8 1.3 1.3-4.7-.3-.5A12.8 12.8 0 0 1 3.2 16C3.2 9 8.9 3.2 16 3.2S28.8 9 28.8 16 23.1 28.9 16 28.9z"></path></svg>
         Hablar con <span data-cfg="nombreCorto">Saju</span>
@@ -654,7 +654,7 @@
 <div class="drawer-overlay" id="drawerOverlay"></div>
 <aside class="drawer" id="cartDrawer" aria-label="Carrito de compras">
   <div class="drawer-head">
-    <h3>Tu carrito 🛍️</h3>
+    <h3 data-ed="ui.cartTitle">Tu carrito 🛍️</h3>
     <button class="drawer-close" type="button" onclick="closeCart()" aria-label="Cerrar carrito">✕</button>
   </div>
   <div class="drawer-body" id="cartBody"></div>
@@ -696,8 +696,8 @@
   <div class="co-card">
     <button class="co-close" type="button" onclick="closeCheckout()" aria-label="Cerrar">✕</button>
     <div id="coForm">
-      <h3>Finalizar pedido 🎀</h3>
-      <p class="co-intro">Déjanos tus datos y confirma. Te contactaremos para coordinar el pago y el envío. 💗</p>
+      <h3 data-ed="ui.checkoutTitle">Finalizar pedido 🎀</h3>
+      <p class="co-intro" data-ed="ui.checkoutIntro">Déjanos tus datos y confirma. Te contactaremos para coordinar el pago y el envío. 💗</p>
       <label class="co-field"><span>Nombre completo *</span><input id="coName" type="text" autocomplete="name" placeholder="Tu nombre"></label>
       <label class="co-field"><span>WhatsApp / Teléfono *</span><input id="coPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="Ej: 3215878135"></label>
       <label class="co-field"><span>Ciudad *</span><input id="coCity" type="text" autocomplete="address-level2" placeholder="Tu ciudad"></label>
@@ -705,7 +705,7 @@
       <label class="co-field"><span>Notas (opcional)</span><textarea id="coNotes" placeholder="Indicaciones para la entrega"></textarea></label>
       <div class="co-err" id="coErr"></div>
       <div class="co-total"><span>Total</span><span id="coTotal">$0</span></div>
-      <button class="btn btn-pink" type="button" id="coSubmit" onclick="submitOrder()">Confirmar pedido 💗</button>
+      <button class="btn btn-pink" type="button" id="coSubmit" onclick="submitOrder()" data-ed="ui.checkoutBtn">Confirmar pedido 💗</button>
     </div>
     <div id="coSuccess" style="display:none;text-align:center;padding:14px 0;">
       <div style="font-size:3.4rem;line-height:1">💗</div>
@@ -785,11 +785,28 @@
   var CATEGORIES = [{ id:'todos', nombre:'Todos ✨' }].concat(SITE_CONFIG.categorias);
   var PRODUCTS   = SITE_CONFIG.items.slice();
   var FB_DB      = null; // conexión a Firestore (se asigna al cargar Firebase)
+  var UI_TEXT    = {};   // micro-textos editables (carrito/checkout)
 
-  /* ── Inyección del tema a las variables CSS ── */
-  (function applyTheme(){
-    var T = SITE_CONFIG.theme || {};
-    function mix(hex, t){ // mezcla el color con blanco (t = 0..1 hacia blanco)
+  /* ── Identidad + tema (editables; lo guardado en Firebase manda sobre SITE_CONFIG) ── */
+  var SC_OVERRIDE = { identidad:{}, theme:{} };
+  function _ne(v){ return typeof v === 'string' ? v.trim() !== '' : v != null; } // valor no vacío
+
+  function applyIdentityTheme(){
+    var oid = SC_OVERRIDE.identidad || {}, oth = SC_OVERRIDE.theme || {};
+    var ID = {
+      nombre:      _ne(oid.nombre)      ? oid.nombre      : SITE_CONFIG.nombre,
+      nombreCorto: _ne(oid.nombreCorto) ? oid.nombreCorto : SITE_CONFIG.nombreCorto,
+      eslogan:     _ne(oid.eslogan)     ? oid.eslogan     : SITE_CONFIG.eslogan,
+      whatsapp:    _ne(oid.whatsapp)    ? String(oid.whatsapp).replace(/[^0-9]/g,'') : SITE_CONFIG.whatsapp,
+      instagram:   _ne(oid.instagram)   ? String(oid.instagram).replace(/^@/,'').trim() : SITE_CONFIG.instagram
+    };
+    WHATSAPP = ID.whatsapp;
+    var T = {};
+    var base = SITE_CONFIG.theme || {};
+    Object.keys(base).forEach(function(k){ T[k] = base[k]; });
+    Object.keys(oth).forEach(function(k){ if(_ne(oth[k])) T[k] = oth[k]; });
+
+    function mix(hex, t){
       var h = (hex||'#fff').replace('#','');
       if(h.length===3) h = h.split('').map(function(c){return c+c;}).join('');
       var n = parseInt(h,16), R=(n>>16)&255, G=(n>>8)&255, B=n&255;
@@ -829,16 +846,17 @@
       if (gf) gf.href = 'https://fonts.googleapis.com/css2?family=' + T.googleFonts + '&display=swap';
     }
     /* textos y enlaces de marca */
-    document.title = SITE_CONFIG.nombre + ' · Tienda online ✨';
-    var waBonito = WHATSAPP.replace(/^57/,'').replace(/(\d{3})(\d{3})(\d{4})/, '$1 $2 $3');
-    var fills = { nombre:SITE_CONFIG.nombre, nombreCorto:SITE_CONFIG.nombreCorto,
-                  eslogan:SITE_CONFIG.eslogan, igHandle:'@'+SITE_CONFIG.instagram, waBonito:waBonito };
+    document.title = ID.nombre + ' · Tienda online ✨';
+    var waBonito = String(WHATSAPP).replace(/^57/,'').replace(/(\d{3})(\d{3})(\d{4})/, '$1 $2 $3');
+    var fills = { nombre:ID.nombre, nombreCorto:ID.nombreCorto,
+                  eslogan:ID.eslogan, igHandle:'@'+ID.instagram, waBonito:waBonito };
     Object.keys(fills).forEach(function(k){
       document.querySelectorAll('[data-cfg="'+k+'"]').forEach(function(el){ el.textContent = fills[k]; });
     });
     document.querySelectorAll('[data-cfg-href="wa"]').forEach(function(el){ el.href = 'https://wa.me/'+WHATSAPP; });
-    document.querySelectorAll('[data-cfg-href="ig"]').forEach(function(el){ el.href = 'https://instagram.com/'+SITE_CONFIG.instagram; });
-  })();
+    document.querySelectorAll('[data-cfg-href="ig"]').forEach(function(el){ el.href = 'https://instagram.com/'+ID.instagram; });
+  }
+  applyIdentityTheme();
 
   /* =====================================================
      UTILIDADES
@@ -995,7 +1013,7 @@
     $('#coForm').style.display = '';
     $('#coSuccess').style.display = 'none';
     $('#coSubmit').disabled = false;
-    $('#coSubmit').textContent = 'Confirmar pedido 💗';
+    $('#coSubmit').textContent = UI_TEXT.checkoutBtn || 'Confirmar pedido 💗';
     $('#checkoutOverlay').classList.add('open');
     document.body.style.overflow = 'hidden';
   };
@@ -1051,12 +1069,12 @@
         .catch(function(e){
           console.warn('No se pudo guardar el pedido.', e);
           err.textContent = 'No pudimos registrar el pedido. Revisa tu conexión e inténtalo de nuevo.';
-          btn.disabled = false; btn.textContent = 'Confirmar pedido 💗';
+          btn.disabled = false; btn.textContent = UI_TEXT.checkoutBtn || 'Confirmar pedido 💗';
         });
     } else {
       // Sin Firebase: avisar (no debería pasar en producción)
       err.textContent = 'Servicio no disponible por ahora. Escríbenos por WhatsApp 💌';
-      btn.disabled = false; btn.textContent = 'Confirmar pedido 💗';
+      btn.disabled = false; btn.textContent = UI_TEXT.checkoutBtn || 'Confirmar pedido 💗';
     }
   };
 
@@ -1314,6 +1332,11 @@
   // Aplica el contenido editable (textos del hero y secciones) desde Firebase
   function applyStoreContent(content){
     if(!content) return;
+    // Identidad y tema (lo guardado manda sobre SITE_CONFIG)
+    if(content.identidad){ SC_OVERRIDE.identidad = content.identidad; }
+    if(content.theme){ SC_OVERRIDE.theme = content.theme; }
+    if(content.identidad || content.theme){ applyIdentityTheme(); }
+    if(content.ui){ UI_TEXT = content.ui; }
     $$('[data-ed]').forEach(function(el){
       var path = el.getAttribute('data-ed').split('.');
       var v = content;
