@@ -625,7 +625,7 @@
     <div class="sec-head">
       <span class="kicker">los consentidos de <span data-cfg="nombreCorto">Saju</span> 🥰</span>
       <h2>La tienda</h2>
-      <p>Filtra por categoría, toca un producto para ver su detalle y agrégalo al carrito. Toca cualquier foto para subir la imagen real del producto. 💕</p>
+      <p>Filtra por categoría, toca un producto para ver su detalle y agrégalo al carrito. 💕</p>
     </div>
 
     <div class="cat-row" id="catRow"></div>
@@ -1241,7 +1241,7 @@
       return '<div class="slot has-img"><img src="'+p.imagen+'" alt="'+p.nombre+'"></div>';
     }
     var size = big ? ' style="font-size:3rem;"' : '';
-    return '<div class="slot" data-slot="prod-'+p.id+'"><div class="ph"><span class="emoji"'+size+'>'+p.emoji+'</span><small>toca para subir foto</small></div></div>';
+    return '<div class="slot"><div class="ph"><span class="emoji"'+size+'>'+p.emoji+'</span></div></div>';
   }
 
   function findProduct(id){
@@ -1250,53 +1250,11 @@
   }
 
   /* =====================================================
-     IMÁGENES DE PRODUCTOS (toca para subir, persistidas)
+     IMÁGENES DE PRODUCTOS
+     Las fotos reales llegan desde el panel admin (Firebase
+     + Cloudinary) en el campo p.imagen. Si un producto no
+     tiene foto, se muestra su emoji como placeholder limpio.
   ===================================================== */
-  var IMG_KEY = 'saju_slots_v2';
-  var imgStore = {};
-  try { imgStore = JSON.parse(lsGet(IMG_KEY) || '{}'); } catch(e){ imgStore = {}; }
-  function saveImgs(){ lsSet(IMG_KEY, JSON.stringify(imgStore)); }
-
-  function applyImg(slot, dataUrl){
-    var img = slot.querySelector('img');
-    if(!img){ img = document.createElement('img'); slot.appendChild(img); }
-    img.src = dataUrl;
-    slot.classList.add('has-img');
-  }
-
-  function wireSlot(slot){
-    var id = slot.getAttribute('data-slot');
-    if(imgStore[id]) applyImg(slot, imgStore[id]);
-
-    var input = document.createElement('input');
-    input.type = 'file'; input.accept = 'image/*'; input.style.display = 'none';
-    slot.appendChild(input);
-
-    function readFile(file){
-      if(!file || !file.type || file.type.indexOf('image/')!==0) return;
-      var r = new FileReader();
-      r.onload = function(ev){
-        imgStore[id] = ev.target.result;
-        applyImg(slot, ev.target.result);
-        saveImgs();
-        // refresca miniaturas del carrito si está abierto
-        renderCart();
-      };
-      r.readAsDataURL(file);
-    }
-
-    slot.addEventListener('click', function(e){
-      if(e.target.tagName !== 'INPUT') input.click();
-      e.stopPropagation();
-    });
-    input.addEventListener('change', function(e){ readFile(e.target.files[0]); });
-    slot.addEventListener('dragover', function(e){ e.preventDefault(); slot.classList.add('drag-over'); });
-    slot.addEventListener('dragleave', function(){ slot.classList.remove('drag-over'); });
-    slot.addEventListener('drop', function(e){
-      e.preventDefault(); slot.classList.remove('drag-over');
-      if(e.dataTransfer.files && e.dataTransfer.files[0]) readFile(e.dataTransfer.files[0]);
-    });
-  }
 
   /* =====================================================
      CARRITO
@@ -1369,7 +1327,7 @@
       keys.forEach(function(id){
         var p = findProduct(id);
         if(!p) return;
-        var img = p.imagen || imgStore['prod-'+id];
+        var img = p.imagen;
         var thumb = img ? '<img src="'+img+'" alt="">' : p.emoji;
         html += ''
           + '<div class="cart-item">'
@@ -1505,8 +1463,6 @@
         ? list.map(cardHtml).join('')
         : '<div class="empty-cat" style="grid-column:1/-1;">Pronto tendremos productos en esta categoría 💌</div>';
     }
-    // re-cablear slots de imagen del grid
-    $$('.slot[data-slot]', grid).forEach(wireSlot);
   }
 
   $('#prodGrid').addEventListener('click', function(e){
@@ -1571,7 +1527,6 @@
       closeDetail();
       openCart();
     });
-    $$('.slot[data-slot]', card).forEach(wireSlot);
 
     $('#detailOverlay').classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -1611,9 +1566,6 @@
   // marquee de marcas
   var track = $('#brandTrack');
   if(track){ track.innerHTML += track.innerHTML; }
-
-  // slots del hero
-  $$('.collage .slot[data-slot]').forEach(wireSlot);
 
   /* =====================================================
      FIREBASE (opcional): si SITE_CONFIG.firebase tiene
