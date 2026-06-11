@@ -1,0 +1,1683 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saju Multimarca · Tienda online ✨</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link id="gf-link" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Pacifico&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Firebase (opcional): solo se usa si SITE_CONFIG.firebase tiene claves -->
+<script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<style>
+  :root{
+    --bubblegum:#ff4f9a;
+    --pink-hot:#ff7ab8;
+    --pink:#ffa6cf;
+    --pink-soft:#ffd9ea;
+    --pink-cream:#fff0f7;
+    --lilac:#c9a3ff;
+    --purple:#9b6dff;
+    --gold:#f6c945;
+    --gold-deep:#e0a82e;
+    --ink:#7a2e57;
+    --ink-soft:#a4628a;
+    --white:#fffafd;
+    --shadow-pink:rgba(255,79,154,.28);
+    --shadow-lilac:rgba(155,109,255,.25);
+    --font-bubble:"Baloo 2", system-ui, sans-serif;
+    --font-script:"Pacifico", cursive;
+    --font-body:"Quicksand", system-ui, sans-serif;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:var(--font-body);
+    color:var(--ink);
+    background:
+      radial-gradient(140% 120% at 10% 0%, var(--bg1,#fff4fa) 0%, var(--bg2,#ffe6f3) 35%, var(--bg3,#ffd9ee) 60%, var(--bg4,#f0dcff) 100%);
+    background-attachment:fixed;
+    min-height:100vh;
+    overflow-x:hidden;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- decorative floating background ---------- */
+  .sky{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+  .blob{position:absolute;border-radius:50%;filter:blur(40px);opacity:.55;}
+  .blob.b1{width:340px;height:340px;background:#ffb7d8;top:-80px;left:-60px;animation:drift 18s ease-in-out infinite;}
+  .blob.b2{width:300px;height:300px;background:#d9b8ff;top:30%;right:-70px;animation:drift 22s ease-in-out infinite reverse;}
+  .blob.b3{width:260px;height:260px;background:#ffd59e;bottom:-60px;left:25%;opacity:.4;animation:drift 26s ease-in-out infinite;}
+
+  .twinkle{position:absolute;font-size:22px;opacity:.85;animation:floaty 7s ease-in-out infinite, twinkle 3.5s ease-in-out infinite;filter:drop-shadow(0 2px 4px rgba(255,79,154,.25));}
+
+  @keyframes drift{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(30px,-30px) scale(1.08);}}
+  @keyframes floaty{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-22px) rotate(8deg);}}
+  @keyframes twinkle{0%,100%{opacity:.35;}50%{opacity:1;}}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(var(--rot,0deg));}50%{transform:translateY(-10px) rotate(var(--rot,0deg));}}
+  @keyframes spinSlow{from{transform:rotate(0);}to{transform:rotate(360deg);}}
+  @keyframes pop{0%{transform:scale(.6);opacity:0;}70%{transform:scale(1.08);}100%{transform:scale(1);opacity:1;}}
+  @keyframes marquee{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+  @keyframes cartBounce{0%{transform:scale(1);}40%{transform:scale(1.25) rotate(-6deg);}100%{transform:scale(1);}}
+  @keyframes slideUp{from{transform:translateY(30px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important;transition:none !important;}
+    html{scroll-behavior:auto;}
+  }
+
+  /* ---------- layout shell ---------- */
+  .wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 20px;}
+
+  /* ---------- floating nav ---------- */
+  header.nav{
+    position:sticky;top:14px;z-index:50;
+    display:flex;justify-content:center;
+    padding:0 16px;margin-top:14px;
+  }
+  .nav-pill{
+    display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center;
+    background:rgba(255,255,255,.78);
+    backdrop-filter:blur(10px);
+    border:2px solid #fff;
+    box-shadow:0 12px 30px var(--shadow-pink);
+    border-radius:999px;
+    padding:8px 10px 8px 18px;
+  }
+  .nav-pill .logo{
+    font-family:var(--font-bubble);font-weight:800;font-size:1.4rem;
+    color:var(--bubblegum);letter-spacing:.5px;line-height:1;
+    -webkit-text-stroke:1.5px #fff;paint-order:stroke fill;
+    margin-right:6px;cursor:pointer;
+  }
+  .nav-links{display:flex;gap:4px;flex-wrap:wrap;align-items:center;}
+  .nav-links a{
+    text-decoration:none;color:var(--ink);font-weight:600;font-size:.9rem;
+    padding:8px 14px;border-radius:999px;transition:.2s;cursor:pointer;
+  }
+  .nav-links a:hover{background:var(--pink-soft);color:var(--bubblegum);transform:translateY(-2px);}
+  .nav-wa{
+    background:linear-gradient(135deg,#37d36b,#1faa53);color:#fff !important;
+    box-shadow:0 6px 14px rgba(31,170,83,.4);
+  }
+  .nav-wa:hover{background:linear-gradient(135deg,#37d36b,#1faa53)!important;color:#fff!important;}
+
+  /* cart button in nav */
+  .cart-btn{
+    position:relative;display:inline-flex;align-items:center;gap:7px;
+    background:linear-gradient(135deg,var(--bubblegum),var(--purple));
+    color:#fff;border:none;cursor:pointer;
+    font-family:var(--font-bubble);font-weight:700;font-size:.92rem;
+    padding:9px 16px;border-radius:999px;
+    box-shadow:0 6px 14px var(--shadow-pink);transition:transform .18s;
+  }
+  .cart-btn:hover{transform:translateY(-2px) scale(1.04);}
+  .cart-btn.bump{animation:cartBounce .45s ease;}
+  .cart-count{
+    background:#fff;color:var(--bubblegum);font-weight:800;
+    min-width:22px;height:22px;border-radius:999px;
+    display:grid;place-items:center;font-size:.78rem;padding:0 5px;
+  }
+
+  /* ---------- hero ---------- */
+  .hero{position:relative;padding:46px 0 30px;}
+  .hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:30px;align-items:center;}
+  .badge-multi{
+    position:absolute;top:8px;right:6px;width:118px;height:118px;
+    display:grid;place-items:center;z-index:5;
+    animation:bob 6s ease-in-out infinite;--rot:-8deg;
+  }
+  .badge-multi .ring{position:absolute;inset:0;animation:spinSlow 16s linear infinite;}
+  .badge-multi .ring svg{width:100%;height:100%;}
+  .badge-multi .core{font-family:var(--font-script);font-size:.8rem;color:var(--purple);text-align:center;line-height:1.1;}
+
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    background:#fff;border:2px dashed var(--lilac);
+    color:var(--purple);font-weight:700;font-size:.82rem;letter-spacing:.5px;
+    padding:7px 16px;border-radius:999px;text-transform:uppercase;
+    box-shadow:0 8px 18px var(--shadow-lilac);
+  }
+  .hero h1{
+    font-family:var(--font-bubble);font-weight:800;
+    font-size:clamp(4.2rem,13vw,8.5rem);line-height:.86;letter-spacing:1px;
+    color:var(--bubblegum);
+    -webkit-text-stroke:7px #fff;paint-order:stroke fill;
+    filter:drop-shadow(0 10px 0 #ffd0e6) drop-shadow(0 16px 24px var(--shadow-pink));
+    margin:18px 0 4px;
+  }
+  .hero .sub-script{
+    font-family:var(--font-script);font-size:clamp(1.5rem,3.4vw,2.3rem);
+    color:var(--purple);margin-bottom:14px;line-height:1.1;text-shadow:0 2px 0 #fff;
+  }
+  .hero p.lede{font-size:clamp(1rem,1.5vw,1.15rem);color:var(--ink-soft);font-weight:500;max-width:30ch;margin-bottom:24px;}
+  .cta-row{display:flex;gap:14px;flex-wrap:wrap;}
+  .btn{
+    display:inline-flex;align-items:center;gap:9px;text-decoration:none;
+    font-family:var(--font-bubble);font-weight:700;font-size:1.02rem;
+    padding:15px 26px;border-radius:999px;border:3px solid #fff;
+    transition:transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .2s;cursor:pointer;
+  }
+  .btn:hover{transform:translateY(-4px) scale(1.04);}
+  .btn:active{transform:translateY(-1px) scale(.98);}
+  .btn-wa{background:linear-gradient(135deg,#3ad675,#1faa53);color:#fff;box-shadow:0 12px 26px rgba(31,170,83,.45);}
+  .btn-ig{background:linear-gradient(135deg,#ff5fa2,#c44bd6,#9b6dff);color:#fff;box-shadow:0 12px 26px var(--shadow-pink);}
+  .btn-pink{background:linear-gradient(135deg,var(--bubblegum),var(--purple));color:#fff;box-shadow:0 12px 26px var(--shadow-pink);}
+  .btn .ico{width:22px;height:22px;fill:currentColor;}
+
+  /* hero collage */
+  .collage{position:relative;height:420px;}
+  .polaroid{
+    position:absolute;background:#fff;padding:10px 10px 36px;border-radius:14px;
+    box-shadow:0 18px 36px var(--shadow-pink);
+  }
+  .polaroid .cap{
+    position:absolute;left:0;right:0;bottom:9px;text-align:center;
+    font-family:var(--font-script);color:var(--bubblegum);font-size:1rem;
+  }
+  .tape{
+    position:absolute;width:78px;height:26px;background:rgba(201,163,255,.55);
+    border:1px dashed rgba(255,255,255,.7);top:-12px;left:50%;transform:translateX(-50%) rotate(-4deg);
+    border-radius:3px;backdrop-filter:blur(2px);
+  }
+  .p1{width:210px;top:10px;left:30px;transform:rotate(-6deg);animation:bob 7s ease-in-out infinite;--rot:-6deg;z-index:3;}
+  .p2{width:170px;top:150px;right:18px;transform:rotate(7deg);animation:bob 8s ease-in-out .6s infinite;--rot:7deg;z-index:2;}
+  .p3{width:140px;bottom:0;left:60px;transform:rotate(4deg);animation:bob 9s ease-in-out .3s infinite;--rot:4deg;z-index:1;}
+
+  /* image slots (drag & drop) */
+  .slot{
+    position:relative;border-radius:8px;overflow:hidden;cursor:pointer;
+    background:repeating-linear-gradient(45deg,#ffe3f0 0 12px,#ffd2e8 12px 24px);
+    display:grid;place-items:center;text-align:center;transition:.2s;
+  }
+  .slot:hover{filter:brightness(.97);}
+  .slot.has-img{background:none;}
+  .slot .ph{padding:10px;color:var(--ink-soft);}
+  .slot .ph .emoji{font-size:1.6rem;display:block;margin-bottom:4px;}
+  .slot .ph small{font-family:monospace;font-size:.66rem;letter-spacing:.3px;opacity:.8;}
+  .slot.has-img .ph{display:none;}
+  .slot img{width:100%;height:100%;object-fit:cover;display:block;}
+  .slot.drag-over{outline:3px dashed var(--purple);outline-offset:-6px;}
+
+  /* ---------- section heading ---------- */
+  .sec{padding:54px 0 10px;position:relative;}
+  .sec-head{text-align:center;margin-bottom:34px;}
+  .sec-head .kicker{font-family:var(--font-script);color:var(--purple);font-size:1.3rem;}
+  .sec-head h2{
+    font-family:var(--font-bubble);font-weight:800;color:var(--bubblegum);
+    font-size:clamp(2rem,5vw,3.2rem);line-height:1;
+    -webkit-text-stroke:4px #fff;paint-order:stroke fill;
+    filter:drop-shadow(0 6px 12px var(--shadow-pink));margin-top:2px;
+  }
+  .sec-head p{color:var(--ink-soft);font-weight:500;max-width:46ch;margin:12px auto 0;}
+
+  /* ---------- brands marquee ---------- */
+  .marquee{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);}
+  .marquee-track{display:flex;gap:20px;width:max-content;animation:marquee 26s linear infinite;}
+  .marquee:hover .marquee-track{animation-play-state:paused;}
+  .brand-blob{
+    flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:4px;min-width:170px;padding:24px 28px;background:#fff;
+    border:3px solid var(--pink-soft);
+    border-radius:40px 44px 38px 46px;
+    box-shadow:0 14px 28px var(--shadow-pink);
+  }
+  .brand-blob:nth-child(even){border-color:#e7d4ff;border-radius:46px 38px 44px 40px;}
+  .brand-blob .bname{font-family:var(--font-bubble);font-weight:700;font-size:1.25rem;color:var(--ink);}
+  .brand-blob .btag{font-size:.74rem;color:var(--ink-soft);font-weight:600;}
+  .brand-blob .dot{font-size:1.1rem;}
+
+  /* ---------- category chips ---------- */
+  .cat-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:30px;}
+  .cat-chip{
+    font-family:var(--font-bubble);font-weight:700;font-size:.95rem;
+    border:3px solid #fff;background:#fff;color:var(--ink);
+    padding:10px 20px;border-radius:999px;cursor:pointer;
+    box-shadow:0 8px 18px var(--shadow-pink);
+    transition:transform .18s cubic-bezier(.34,1.56,.64,1), background .2s, color .2s;
+  }
+  .cat-chip:hover{transform:translateY(-3px);}
+  .cat-chip.active{
+    background:linear-gradient(135deg,var(--bubblegum),var(--purple));color:#fff;
+  }
+
+  /* ---------- product cards ---------- */
+  .prod-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+  .prod-grid.grouped{display:block;}
+  .cat-block{margin-bottom:40px;}
+  .cat-title{
+    font-family:var(--font-bubble);font-weight:800;color:var(--bubblegum);
+    font-size:1.4rem;margin:0 0 16px;display:flex;align-items:center;gap:12px;
+  }
+  .cat-title::after{content:'';flex:1;height:4px;border-radius:99px;
+    background:linear-gradient(90deg,var(--pink-soft),transparent);}
+  .cat-count{
+    background:#fff;color:var(--bubblegum);font-size:.78rem;font-weight:800;
+    min-width:26px;height:26px;border-radius:999px;display:grid;place-items:center;
+    padding:0 8px;box-shadow:0 4px 10px var(--shadow-pink);
+  }
+  .cat-more{display:flex;justify-content:center;margin-top:16px;}
+  .cat-more .mini-btn{width:auto;padding:10px 22px;}
+  .prod{
+    background:#fff;border-radius:24px;padding:12px 12px 18px;
+    box-shadow:0 18px 36px var(--shadow-pink);position:relative;
+    transition:transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .2s;
+    display:flex;flex-direction:column;animation:pop .35s ease both;
+  }
+  .prod:hover{transform:translateY(-8px) rotate(1deg);box-shadow:0 26px 48px var(--shadow-pink);}
+  .prod .slot{height:200px;border-radius:18px;}
+  .prod .body{padding:14px 8px 4px;display:flex;flex-direction:column;flex:1;}
+  .prod .catlabel{font-size:.72rem;font-weight:700;color:var(--purple);background:#f3eaff;padding:3px 12px;border-radius:999px;align-self:flex-start;margin-bottom:6px;}
+  .prod h3{font-family:var(--font-bubble);font-weight:700;color:var(--bubblegum);font-size:1.3rem;line-height:1.05;margin:2px 0 6px;cursor:pointer;}
+  .prod h3:hover{color:var(--purple);}
+  .prod p{font-size:.88rem;color:var(--ink-soft);font-weight:500;margin-bottom:12px;flex:1;}
+  .prod .price{font-family:var(--font-bubble);font-weight:800;color:var(--purple);font-size:1.1rem;}
+  .prod .card-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+  .mini-btn{
+    display:inline-flex;align-items:center;gap:7px;text-decoration:none;border:none;cursor:pointer;
+    font-weight:700;font-family:var(--font-bubble);
+    padding:11px 18px;border-radius:999px;font-size:.9rem;
+    transition:transform .18s;
+  }
+  .mini-btn:hover{transform:scale(1.06);}
+  .mini-add{background:linear-gradient(135deg,var(--bubblegum),var(--purple));color:#fff;box-shadow:0 8px 18px var(--shadow-pink);}
+  .mini-view{background:var(--pink-cream);color:var(--bubblegum);border:2px solid var(--pink-soft);}
+  .prod .sticker{
+    position:absolute;top:-12px;right:-10px;z-index:4;
+    font-family:var(--font-bubble);font-weight:800;color:#fff;font-size:.72rem;
+    background:var(--gold);padding:8px 13px;border-radius:14px 14px 14px 4px;
+    box-shadow:0 6px 14px rgba(224,168,46,.5);transform:rotate(8deg);
+    border:2px solid #fff;
+  }
+  .prod .sticker.lila{background:var(--purple);box-shadow:0 6px 14px var(--shadow-lilac);}
+  .prod .sticker.pink{background:var(--bubblegum);}
+
+  .empty-cat{text-align:center;color:var(--ink-soft);font-weight:600;padding:30px;}
+
+  /* ---------- product detail (overlay page) ---------- */
+  .overlay{
+    position:fixed;inset:0;z-index:90;display:none;
+    background:rgba(122,46,87,.35);backdrop-filter:blur(6px);
+    overflow-y:auto;padding:30px 16px;
+  }
+  .overlay.open{display:block;}
+  .detail-card{
+    max-width:880px;margin:30px auto;background:#fff;border-radius:30px;
+    box-shadow:0 30px 70px var(--shadow-pink);overflow:hidden;position:relative;
+    animation:slideUp .35s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  .detail-close{
+    position:absolute;top:14px;right:14px;z-index:5;
+    width:42px;height:42px;border-radius:50%;border:2px solid var(--pink-soft);
+    background:#fff;color:var(--bubblegum);font-size:1.2rem;font-weight:800;cursor:pointer;
+    box-shadow:0 8px 16px var(--shadow-pink);transition:transform .18s;
+  }
+  .detail-close:hover{transform:rotate(90deg) scale(1.08);}
+  .detail-grid{display:grid;grid-template-columns:1fr 1fr;}
+  .detail-img{background:var(--pink-cream);min-height:380px;display:grid;place-items:center;position:relative;}
+  .detail-img .slot{width:100%;height:100%;min-height:380px;border-radius:0;}
+  .detail-info{padding:38px 32px;display:flex;flex-direction:column;}
+  .detail-info .catlabel{font-size:.74rem;font-weight:700;color:var(--purple);background:#f3eaff;padding:4px 14px;border-radius:999px;align-self:flex-start;}
+  .detail-info h2{
+    font-family:var(--font-bubble);font-weight:800;color:var(--bubblegum);
+    font-size:clamp(1.6rem,3.4vw,2.3rem);line-height:1.05;margin:10px 0 6px;
+  }
+  .detail-info .star{font-family:var(--font-script);color:var(--purple);font-size:1rem;margin-bottom:10px;}
+  .detail-info .desc{color:var(--ink-soft);font-weight:500;margin-bottom:18px;}
+  .detail-info .price-big{font-family:var(--font-bubble);font-weight:800;color:var(--purple);font-size:1.7rem;margin-bottom:18px;}
+  .qty-row{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+  .qty-row span.lbl{font-weight:700;font-size:.9rem;}
+  .qty-ctrl{display:inline-flex;align-items:center;gap:0;border:2px solid var(--pink-soft);border-radius:999px;overflow:hidden;background:var(--pink-cream);}
+  .qty-ctrl button{
+    border:none;background:transparent;width:40px;height:40px;cursor:pointer;
+    font-family:var(--font-bubble);font-weight:800;font-size:1.2rem;color:var(--bubblegum);
+  }
+  .qty-ctrl button:hover{background:var(--pink-soft);}
+  .qty-ctrl .q{min-width:36px;text-align:center;font-family:var(--font-bubble);font-weight:800;font-size:1.05rem;}
+  .detail-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:auto;}
+
+  /* ---------- cart drawer ---------- */
+  .drawer-overlay{position:fixed;inset:0;z-index:95;background:rgba(122,46,87,.35);backdrop-filter:blur(4px);display:none;}
+  .drawer-overlay.open{display:block;}
+  .drawer{
+    position:fixed;top:0;right:0;bottom:0;z-index:96;width:min(420px,100%);
+    background:var(--white);box-shadow:-20px 0 60px var(--shadow-pink);
+    transform:translateX(105%);transition:transform .32s cubic-bezier(.34,1.2,.64,1);
+    display:flex;flex-direction:column;
+  }
+  .drawer.open{transform:translateX(0);}
+  .drawer-head{
+    padding:22px 22px 16px;display:flex;align-items:center;justify-content:space-between;
+    border-bottom:2px dashed var(--pink-soft);
+  }
+  .drawer-head h3{font-family:var(--font-bubble);font-weight:800;color:var(--bubblegum);font-size:1.4rem;}
+  .drawer-close{border:none;background:var(--pink-cream);width:38px;height:38px;border-radius:50%;cursor:pointer;color:var(--bubblegum);font-weight:800;font-size:1.1rem;}
+  .drawer-body{flex:1;overflow-y:auto;padding:18px 22px;display:flex;flex-direction:column;gap:14px;}
+  .cart-item{
+    display:flex;gap:12px;align-items:center;background:#fff;border-radius:18px;
+    padding:12px;box-shadow:0 8px 18px var(--shadow-pink);
+  }
+  .cart-item .thumb{
+    width:58px;height:58px;border-radius:14px;flex:0 0 auto;overflow:hidden;
+    background:var(--pink-cream);display:grid;place-items:center;font-size:1.5rem;
+  }
+  .cart-item .thumb img{width:100%;height:100%;object-fit:cover;}
+  .cart-item .ci-info{flex:1;min-width:0;}
+  .cart-item .ci-info h4{font-family:var(--font-bubble);font-weight:700;font-size:.95rem;color:var(--ink);line-height:1.15;}
+  .cart-item .ci-info .ci-price{font-size:.82rem;color:var(--purple);font-weight:700;}
+  .cart-item .ci-qty{display:flex;align-items:center;gap:6px;}
+  .cart-item .ci-qty button{
+    width:26px;height:26px;border-radius:50%;border:none;cursor:pointer;
+    background:var(--pink-soft);color:var(--bubblegum);font-weight:800;line-height:1;
+  }
+  .cart-item .ci-qty span{font-family:var(--font-bubble);font-weight:800;min-width:18px;text-align:center;font-size:.92rem;}
+  .cart-item .ci-del{border:none;background:transparent;cursor:pointer;font-size:1rem;opacity:.6;}
+  .cart-item .ci-del:hover{opacity:1;transform:scale(1.15);}
+  .cart-empty{text-align:center;color:var(--ink-soft);font-weight:600;padding:40px 10px;}
+  .cart-empty .big{font-size:3rem;display:block;margin-bottom:8px;}
+  .drawer-foot{padding:18px 22px 24px;border-top:2px dashed var(--pink-soft);background:var(--pink-cream);}
+  .total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+  .total-row .tl{font-weight:700;}
+  .total-row .tv{font-family:var(--font-bubble);font-weight:800;font-size:1.4rem;color:var(--purple);}
+  .checkout-btn{
+    width:100%;justify-content:center;
+    background:linear-gradient(135deg,#3ad675,#1faa53);color:#fff;
+    box-shadow:0 12px 26px rgba(31,170,83,.45);
+  }
+  .drawer-foot small{display:block;text-align:center;margin-top:10px;color:var(--ink-soft);font-weight:600;}
+
+  /* toast */
+  .toast{
+    position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);
+    z-index:120;background:#fff;border:2px solid var(--pink-soft);
+    box-shadow:0 16px 36px var(--shadow-pink);border-radius:999px;
+    padding:12px 22px;font-family:var(--font-bubble);font-weight:700;color:var(--bubblegum);
+    opacity:0;pointer-events:none;transition:.3s;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  /* floating cart fab (mobile friendly) */
+  .cart-fab{
+    position:fixed;right:18px;bottom:18px;z-index:80;
+    width:62px;height:62px;border-radius:50%;border:3px solid #fff;cursor:pointer;
+    background:linear-gradient(135deg,var(--bubblegum),var(--purple));color:#fff;
+    font-size:1.5rem;box-shadow:0 14px 30px var(--shadow-pink);
+    display:grid;place-items:center;transition:transform .18s;
+  }
+  .cart-fab:hover{transform:scale(1.08);}
+  .cart-fab .fab-count{
+    position:absolute;top:-4px;right:-4px;background:var(--gold);color:#fff;
+    font-family:var(--font-bubble);font-weight:800;font-size:.75rem;
+    min-width:24px;height:24px;border-radius:999px;display:grid;place-items:center;
+    border:2px solid #fff;padding:0 5px;
+  }
+  .cart-fab.bump{animation:cartBounce .45s ease;}
+
+  /* ---------- final CTA ---------- */
+  .final{
+    margin:56px 0 30px;text-align:center;padding:50px 26px;border-radius:36px;
+    background:radial-gradient(120% 140% at 50% 0%,#ffd9ee,#f0dcff);
+    border:3px dashed #fff;position:relative;
+  }
+  .final h2{
+    font-family:var(--font-bubble);font-weight:800;color:var(--bubblegum);
+    font-size:clamp(2rem,5.5vw,3.4rem);line-height:1;
+    -webkit-text-stroke:4px #fff;paint-order:stroke fill;
+    filter:drop-shadow(0 6px 12px var(--shadow-pink));
+  }
+  .final .sub{font-family:var(--font-script);color:var(--purple);font-size:clamp(1.2rem,2.6vw,1.8rem);margin:6px 0 22px;}
+  .final .cta-row{justify-content:center;}
+
+  /* ---------- footer ---------- */
+  footer{text-align:center;padding:26px 20px 90px;color:var(--ink-soft);font-weight:500;font-size:.88rem;}
+  footer .heart{color:var(--bubblegum);}
+  footer .handle{color:var(--purple);font-weight:700;}
+
+  /* ---------- reveal on scroll ---------- */
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .6s ease, transform .6s cubic-bezier(.34,1.56,.64,1);}
+  .reveal.in{opacity:1;transform:none;}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:900px){
+    .hero-grid{grid-template-columns:1fr;}
+    .collage{height:360px;max-width:420px;margin:0 auto;}
+    .prod-grid{grid-template-columns:repeat(2,1fr);}
+    .badge-multi{width:96px;height:96px;top:0;right:0;}
+    .detail-grid{grid-template-columns:1fr;}
+    .detail-img{min-height:280px;}
+    .detail-img .slot{min-height:280px;}
+  }
+  @media (max-width:620px){
+    .wrap{padding:0 14px;}
+    .nav-pill{gap:8px;padding:8px 10px;}
+    .nav-links a:not(.nav-wa){display:none;}
+    .nav-wa{padding:8px 12px;font-size:.82rem;}
+    .cart-btn{padding:8px 12px;font-size:.85rem;}
+    .logo{font-size:1.5rem;}
+
+    .hero{padding:30px 0 16px;}
+    .hero h1{font-size:clamp(3.4rem,17vw,5rem);-webkit-text-stroke:4px #fff;
+      filter:drop-shadow(0 6px 0 #ffd0e6) drop-shadow(0 10px 16px var(--shadow-pink));}
+    .hero .sub-script{font-size:1.15rem;}
+    .collage{height:300px;max-width:340px;}
+    .badge-multi{width:84px;height:84px;font-size:.6rem;}
+
+    .sec{padding:38px 0 8px;}
+    .sec-head{margin-bottom:22px;}
+    .sec-head h2{font-size:1.9rem;}
+    .sec-head p{font-size:.92rem;}
+
+    /* chips de categorías: carrusel horizontal con scroll */
+    .cat-row{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;
+      padding:6px 4px 14px;margin:0 -14px 18px;scroll-padding-left:14px;
+      -webkit-overflow-scrolling:touch;scrollbar-width:none;}
+    .cat-row::-webkit-scrollbar{display:none;}
+    .cat-row::before,.cat-row::after{content:'';flex:0 0 10px;}
+    .cat-chip{flex:0 0 auto;padding:9px 16px;font-size:.88rem;}
+
+    /* productos: 2 columnas compactas */
+    .prod-grid{grid-template-columns:repeat(2,1fr);gap:12px;}
+    .prod .body{padding:12px 12px 14px;}
+    .prod h3{font-size:.98rem;}
+    .prod p{font-size:.78rem;}
+    .prod .price{font-size:1.05rem;}
+    .card-actions{flex-direction:column;gap:6px;}
+    .mini-btn{width:100%;font-size:.8rem;padding:9px 10px;}
+    .sticker{font-size:.62rem;padding:5px 9px;}
+    .cat-title{font-size:1.15rem;}
+    .cat-block{margin-bottom:28px;}
+
+    /* detalle del producto a pantalla completa */
+    .detail-card{margin:0;min-height:100%;border-radius:0;max-width:none;}
+    .detail-img .slot{min-height:240px;}
+    .detail-info{padding:20px 18px 26px;}
+    .detail-info h2{font-size:1.5rem;}
+    .price-big{font-size:1.6rem;}
+    .detail-actions{flex-direction:column;}
+    .detail-actions .btn{width:100%;justify-content:center;}
+
+    /* carrito ocupa toda la pantalla */
+    .drawer{width:100%;}
+
+    .cart-fab{right:14px;bottom:14px;width:56px;height:56px;font-size:1.3rem;}
+    footer{padding-bottom:90px;}
+  }
+  @media (max-width:380px){
+    .hero h1{font-size:3rem;}
+    .prod-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<!-- floating decorative layer -->
+<div class="sky" aria-hidden="true">
+  <span class="blob b1"></span>
+  <span class="blob b2"></span>
+  <span class="blob b3"></span>
+  <span class="twinkle" style="top:14%;left:8%;animation-delay:0s">✨</span>
+  <span class="twinkle" style="top:24%;right:12%;animation-delay:1.2s">💗</span>
+  <span class="twinkle" style="top:62%;left:6%;animation-delay:.6s">🌸</span>
+  <span class="twinkle" style="top:48%;right:7%;font-size:18px;animation-delay:2s">⭐</span>
+  <span class="twinkle" style="top:80%;right:22%;animation-delay:1.8s">✨</span>
+  <span class="twinkle" style="top:8%;right:35%;font-size:16px;animation-delay:.9s">🎀</span>
+  <span class="twinkle" style="top:70%;left:32%;font-size:16px;animation-delay:2.4s">💖</span>
+</div>
+
+<!-- nav -->
+<header class="nav">
+  <nav class="nav-pill">
+    <span class="logo" data-cfg="nombreCorto" onclick="window.scrollTo({top:0,behavior:'smooth'})">Saju</span>
+    <div class="nav-links">
+      <a href="#marcas">Marcas</a>
+      <a href="#tienda">Tienda</a>
+      <a class="nav-wa" data-cfg-href="wa" href="#" target="_blank" rel="noopener">Escríbenos 💬</a>
+      <button class="cart-btn" id="navCartBtn" type="button" aria-label="Abrir carrito">
+        🛍️ Carrito <span class="cart-count" id="navCartCount">0</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main class="wrap">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="badge-multi" aria-hidden="true">
+      <div class="ring">
+        <svg viewBox="0 0 120 120">
+          <defs><path id="circlePath" d="M60,60 m-46,0 a46,46 0 1,1 92,0 a46,46 0 1,1 -92,0"></path></defs>
+          <circle cx="60" cy="60" r="58" fill="#fff"></circle>
+          <circle cx="60" cy="60" r="58" fill="none" stroke="#ffd0e6" stroke-width="3" stroke-dasharray="2 7"></circle>
+          <text fill="#ff4f9a" font-family="Baloo 2, sans-serif" font-weight="700" font-size="13" letter-spacing="2.5">
+            <textPath href="#circlePath" startOffset="0%">✦ MULTIMARCA ✦ BELLEZA ✦ </textPath>
+          </text>
+        </svg>
+      </div>
+      <span class="core">desde<br>Colombia 🇨🇴</span>
+    </div>
+
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow">✨ Tienda multimarca de belleza</span>
+        <h1 data-cfg="nombreCorto">Saju</h1>
+        <div class="sub-script">tu rincón rosa de skincare &amp; cabello 💗</div>
+        <p class="lede">Explora la tienda, llena tu carrito y envía tu pedido en un toque por WhatsApp. ¡Todo con amorcito! 🎀</p>
+        <div class="cta-row">
+          <a class="btn btn-pink" href="#tienda">🛍️ Ver la tienda</a>
+          <a class="btn btn-ig" data-cfg-href="ig" href="#" target="_blank" rel="noopener">
+            <svg class="ico" viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.3 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.3 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.3-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.3-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4C8.4 2.2 8.8 2.2 12 2.2zm0 3.5A6.3 6.3 0 1 0 18.3 12 6.3 6.3 0 0 0 12 5.7zm0 10.4A4.1 4.1 0 1 1 16.1 12 4.1 4.1 0 0 1 12 16.1zm6.5-10.7a1.5 1.5 0 1 0 1.5 1.5 1.5 1.5 0 0 0-1.5-1.5z"></path></svg>
+            <span data-cfg="igHandle">@sajumultimarca</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="collage">
+        <div class="polaroid p1">
+          <span class="tape"></span>
+          <div class="slot" data-slot="hero1" style="height:150px;">
+            <div class="ph"><span class="emoji">🧴</span><small>foto producto</small></div>
+          </div>
+          <span class="cap">Miel Rosada ✨</span>
+        </div>
+        <div class="polaroid p2">
+          <span class="tape" style="background:rgba(246,201,69,.5)"></span>
+          <div class="slot" data-slot="hero2" style="height:120px;">
+            <div class="ph"><span class="emoji">🎁</span><small>caja sorpresa</small></div>
+          </div>
+          <span class="cap">Caja sorpresa 🎀</span>
+        </div>
+        <div class="polaroid p3">
+          <span class="tape" style="background:rgba(255,122,184,.5)"></span>
+          <div class="slot" data-slot="hero3" style="height:100px;">
+            <div class="ph"><span class="emoji">💐</span><small>ramo</small></div>
+          </div>
+          <span class="cap">Ramos 💗</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARCAS -->
+  <section class="sec reveal" id="marcas">
+    <div class="sec-head">
+      <span class="kicker">solo lo mejorcito ✨</span>
+      <h2>Las marcas que amamos</h2>
+      <p>Trabajamos con marcas originales que de verdad cuidan tu piel y tu cabello. ¡Todo 100% auténtico!</p>
+    </div>
+    <div class="marquee">
+      <div class="marquee-track" id="brandTrack">
+        <div class="brand-blob"><span class="dot">💗</span><span class="bname">Milagros</span><span class="btag">magia capilar</span></div>
+        <div class="brand-blob"><span class="dot">🌿</span><span class="bname">Anyeluz</span><span class="btag">piel &amp; colágeno</span></div>
+        <div class="brand-blob"><span class="dot">💜</span><span class="bname">Kaba</span><span class="btag">cuidado capilar</span></div>
+        <div class="brand-blob"><span class="dot">🔮</span><span class="bname">La Poción</span><span class="btag">rituales de belleza</span></div>
+        <div class="brand-blob"><span class="dot">🌸</span><span class="bname">Ritual Botánico</span><span class="btag">skincare natural</span></div>
+        <div class="brand-blob"><span class="dot">✨</span><span class="bname">Piel Canela</span><span class="btag">glow &amp; cuerpo</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TIENDA -->
+  <section class="sec reveal" id="tienda">
+    <div class="sec-head">
+      <span class="kicker">los consentidos de <span data-cfg="nombreCorto">Saju</span> 🥰</span>
+      <h2>La tienda</h2>
+      <p>Filtra por categoría, toca un producto para ver su detalle y agrégalo al carrito. Toca cualquier foto para subir la imagen real del producto. 💕</p>
+    </div>
+
+    <div class="cat-row" id="catRow"></div>
+    <div class="prod-grid" id="prodGrid"></div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="final reveal">
+    <h2>¿Lista para brillar? 💖</h2>
+    <div class="sub">Llena tu carrito y envíanos tu pedido ✨</div>
+    <div class="cta-row">
+      <button class="btn btn-pink" type="button" onclick="openCart()">🛍️ Ver mi carrito</button>
+      <a class="btn btn-wa" data-cfg-href="wa" href="#" target="_blank" rel="noopener">
+        <svg class="ico" viewBox="0 0 32 32"><path d="M16 .4C7.4.4.4 7.4.4 16c0 2.8.7 5.4 2 7.7L.3 31.6l8.1-2.1c2.2 1.2 4.8 1.9 7.6 1.9 8.6 0 15.6-7 15.6-15.6S24.6.4 16 .4zm0 28.5c-2.5 0-4.8-.7-6.8-1.8l-.5-.3-4.8 1.3 1.3-4.7-.3-.5A12.8 12.8 0 0 1 3.2 16C3.2 9 8.9 3.2 16 3.2S28.8 9 28.8 16 23.1 28.9 16 28.9z"></path></svg>
+        Hablar con <span data-cfg="nombreCorto">Saju</span>
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>Hecho con <span class="heart">♥</span> en Colombia · <span class="handle" data-cfg="igHandle">@sajumultimarca</span> · WhatsApp <span data-cfg="waBonito">321 587 8135</span></p>
+  <p style="margin-top:6px;opacity:.7;font-size:.8rem;"><span data-cfg="nombre">Saju Multimarca</span> — <span data-cfg="eslogan">belleza, cabello &amp; skincare ✨</span></p>
+</footer>
+
+<!-- PRODUCT DETAIL OVERLAY -->
+<div class="overlay" id="detailOverlay" role="dialog" aria-modal="true">
+  <div class="detail-card" id="detailCard"><!-- filled by JS --></div>
+</div>
+
+<!-- CART DRAWER -->
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<aside class="drawer" id="cartDrawer" aria-label="Carrito de compras">
+  <div class="drawer-head">
+    <h3>Tu carrito 🛍️</h3>
+    <button class="drawer-close" type="button" onclick="closeCart()" aria-label="Cerrar carrito">✕</button>
+  </div>
+  <div class="drawer-body" id="cartBody"></div>
+  <div class="drawer-foot">
+    <div class="total-row"><span class="tl">Total</span><span class="tv" id="cartTotal">$0</span></div>
+    <button class="btn checkout-btn" type="button" id="checkoutBtn">
+      <svg class="ico" viewBox="0 0 32 32"><path d="M16 .4C7.4.4.4 7.4.4 16c0 2.8.7 5.4 2 7.7L.3 31.6l8.1-2.1c2.2 1.2 4.8 1.9 7.6 1.9 8.6 0 15.6-7 15.6-15.6S24.6.4 16 .4zm0 28.5c-2.5 0-4.8-.7-6.8-1.8l-.5-.3-4.8 1.3 1.3-4.7-.3-.5A12.8 12.8 0 0 1 3.2 16C3.2 9 8.9 3.2 16 3.2S28.8 9 28.8 16 23.1 28.9 16 28.9z"></path></svg>
+      Enviar pedido por WhatsApp
+    </button>
+    <small>Te llevamos a WhatsApp con tu pedido ya armado 💌</small>
+  </div>
+</aside>
+
+<!-- floating cart fab -->
+<button class="cart-fab" id="cartFab" type="button" aria-label="Abrir carrito">
+  🛍️ <span class="fab-count" id="fabCount">0</span>
+</button>
+
+<div class="toast" id="toast">Agregado al carrito 💗</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* =====================================================
+     CONFIGURACIÓN — edita aquí tus datos y productos
+  ===================================================== */
+  /* ════════════════════════════════════════════════════════════
+     SITE_CONFIG — EDITAR SOLO ESTE BLOQUE PARA CADA TIENDA
+     (identidad, contacto, tema, firebase, categorías y productos)
+     ════════════════════════════════════════════════════════════ */
+  var SITE_CONFIG = {
+
+    /* ── Identidad ─────────────────────────────────── */
+    tipo:        'ecommerce',
+    nombre:      'Saju Multimarca',
+    nombreCorto: 'Saju',
+    eslogan:     'belleza, cabello & skincare ✨',
+    locale:      'es-CO',
+    moneda:      'COP',
+
+    /* ── Contacto ──────────────────────────────────── */
+    whatsapp:    '573215878135',     // con código de país, sin +
+    instagram:   'sajumultimarca',
+
+    /* ── Tema visual (todo el diseño sale de aquí) ─── */
+    theme: {
+      colorPrimario:    '#ff4f9a',
+      colorSecundario:  '#9b6dff',
+      colorFondo:       '#fff0f7',
+      colorTexto:       '#7a2e57',
+      colorTextoSuave:  '#a4628a',
+      colorAcento:      '#f6c945',
+      fuenteTitulos:    "'Baloo 2', system-ui, sans-serif",
+      fuenteTexto:      "'Quicksand', system-ui, sans-serif",
+      fuenteDecorativa: "'Pacifico', cursive",
+      googleFonts:      'Baloo+2:wght@500;600;700;800&family=Pacifico&family=Quicksand:wght@400;500;600;700',
+    },
+
+    /* ── Firebase (OPCIONAL) ─────────────────────────
+       Pega aquí las MISMAS claves que en el panel admin
+       y la tienda cargará productos y categorías desde
+       Firestore. Si lo dejas así, usa el catálogo local. */
+    firebase: {
+      apiKey:            'TU_API_KEY',
+      authDomain:        'TU_PROYECTO.firebaseapp.com',
+      projectId:         'TU_PROYECTO',
+      storageBucket:     'TU_PROYECTO.firebasestorage.app',
+      messagingSenderId: '',
+      appId:             ''
+    },
+
+    /* ── Categorías (la de "Todos" se agrega sola) ─── */
+    categorias: [
+      { id:'shampoos',     nombre:'Shampoos 🧴' },
+      { id:'acondicionadores', nombre:'Acondicionadores 💧' },
+      { id:'tratamientos', nombre:'Tratamientos & Mascarillas 💆‍♀️' },
+      { id:'crecimiento',  nombre:'Tónicos & Crecimiento 🌱' },
+      { id:'peinado',      nombre:'Peinado & Styling 🌀' },
+      { id:'facial',       nombre:'Facial 🧖‍♀️' },
+      { id:'corporal',     nombre:'Corporal 🧴' },
+      { id:'maquillaje',   nombre:'Maquillaje 💄' },
+      { id:'splash',       nombre:'Splash & Perfumes 🌸' },
+      { id:'kits',         nombre:'Kits & Regalos 🎁' }
+    ],
+
+    /* ── Catálogo local (se usa si Firebase no está configurado)
+       precio en pesos (solo números). Para agregar un producto,
+       copia un bloque {...} y cambia los datos. ─────── */
+    items: [
+      { id:'mascarilla-bomba-botanica', cat:'tratamientos',
+        nombre:'Mascarilla Bomba Botánica S.O.S',
+        desc:'Mascarilla de colágeno y biotina para reparar el cabello.',
+        precio:36900, emoji:'🌿' },
+      { id:'shampoo-caida-crecimiento', cat:'shampoos',
+        nombre:'Shampoo Controla Caída y Crecimiento',
+        desc:'Shampoo estimulante que frena la caída y activa el crecimiento.',
+        precio:48900, emoji:'🧴' },
+      { id:'acond-cebolla', cat:'acondicionadores',
+        nombre:'Acondicionador de Cebolla',
+        desc:'Fortalece y estimula el crecimiento del cabello.',
+        precio:40000, emoji:'🧅' },
+      { id:'crema-de-peinar', cat:'peinado',
+        nombre:'Crema de Peinar',
+        desc:'Crema de peinar Anyeluz para un cabello suave y manejable.',
+        precio:38000, emoji:'💆‍♀️' },
+      { id:'anyeplex', cat:'tratamientos',
+        nombre:'Anyeplex',
+        desc:'Tratamiento con sistema de adhesión molecular para cabello dañado.',
+        precio:55000, emoji:'🧪' },
+      { id:'acond-ultranutritivo', cat:'acondicionadores',
+        nombre:'Acondicionador Ultra Nutritivo',
+        desc:'Nutrición profunda para cabellos secos y maltratados.',
+        precio:33000, emoji:'🥥' },
+      { id:'acond-ultranutritivo-mini', cat:'acondicionadores',
+        nombre:'Acondicionador Ultranutritivo Mini',
+        desc:'Versión mini con nutrición profunda para tu cabello.',
+        precio:15000, emoji:'🥥' },
+      { id:'acond-ginseng', cat:'acondicionadores',
+        nombre:'Acondicionador de Ginseng',
+        desc:'Fórmula especializada para todos los tipos de cabello.',
+        precio:40000, emoji:'🌱' },
+      { id:'shampoo-control-caspa', cat:'shampoos',
+        nombre:'Shampoo Control Caspa',
+        desc:'Shampoo de menta y ají con activos anticaspa.',
+        precio:34900, emoji:'🌬️' },
+      { id:'desenredante-multibeneficios', cat:'peinado',
+        nombre:'Desenredante Multibeneficios',
+        desc:'Termoprotector ideal si usas secador o plancha.',
+        precio:32000, emoji:'💨' },
+      { id:'trat-bio-repolarizador', cat:'tratamientos',
+        nombre:'Tratamiento Bio-Repolarizador',
+        desc:'Devuelve brillo y vitalidad a cabellos con procesos químicos.',
+        precio:34900, emoji:'✨' },
+      { id:'shampoo-rizos-tongole', cat:'shampoos',
+        nombre:'Shampoo para Rizos Tongole',
+        desc:'Shampoo nutritivo y sin sulfatos para rizos definidos.',
+        precio:38900, emoji:'🌀' },
+      { id:'acond-curly', cat:'acondicionadores',
+        nombre:'Acondicionador Curly',
+        desc:'Hidratación intensa y duradera para rizos.',
+        precio:50000, emoji:'🌀' },
+      { id:'crema-peinar-curly-afro', cat:'peinado',
+        nombre:'Crema de Peinar Curly y Afro',
+        desc:'Definición, hidratación y nutrición profunda para rizos.',
+        precio:40000, emoji:'🌀' },
+      { id:'refill-shampoo-reparacion', cat:'shampoos',
+        nombre:'Refill Shampoo de Reparación',
+        desc:'Loverefill Poción: recarga tu shampoo y cuida el planeta.',
+        precio:34900, emoji:'♻️' },
+      { id:'terapia-crecimiento', cat:'crecimiento',
+        nombre:'Terapia de Crecimiento',
+        desc:'Terapia capilar de crecimiento para un cabello largo y saludable.',
+        precio:46000, emoji:'🌱' },
+      { id:'shampoo-banano', cat:'shampoos',
+        nombre:'Shampoo Banano',
+        desc:'El poder reparador del banano para tu cabello.',
+        precio:40000, emoji:'🍌' },
+      { id:'mascarilla-banano', cat:'tratamientos',
+        nombre:'Mascarilla Nutritiva de Banano',
+        desc:'Mascarilla capilar con banano para nutrición intensa.',
+        precio:43000, emoji:'🍌' },
+      { id:'shampoo-exfoliante', cat:'shampoos',
+        nombre:'Shampoo Exfoliante Capilar',
+        desc:'Limpia, revitaliza y despierta la belleza de tu cabello.',
+        precio:32000, emoji:'🫧' },
+      { id:'trat-emergencia-capilar', cat:'tratamientos',
+        nombre:'Tratamiento Emergencia Capilar',
+        desc:'Rescate para cabello dañado por procesos químicos.',
+        precio:33000, emoji:'🚨' },
+      { id:'acond-pocion-kids', cat:'acondicionadores',
+        nombre:'Acondicionador Poción Kids',
+        desc:'Acondicionador suave especial para niños.',
+        precio:36900, emoji:'🧒' },
+      { id:'shampoo-pocion-kids', cat:'shampoos',
+        nombre:'Shampoo Poción Kids',
+        desc:'Fórmula suave y divertida para el cabello de los peques.',
+        precio:36900, emoji:'🧒' },
+      { id:'shampoo-ultranutritivo', cat:'shampoos',
+        nombre:'Shampoo Ultranutritivo Premium',
+        desc:'Ideal para cabellos que necesitan nutrición premium.',
+        precio:33900, emoji:'💎' },
+      { id:'crema-peinar-tongole', cat:'peinado',
+        nombre:'Crema para Peinar Tongole',
+        desc:'Crema de peinar formulada para definir y proteger.',
+        precio:38900, emoji:'🌀' },
+      { id:'r3start-plex', cat:'tratamientos',
+        nombre:'R3start Plex',
+        desc:'Tratamiento capilar que reconstruye la fibra desde adentro.',
+        precio:65000, emoji:'🔬' },
+      { id:'acond-milagro-herbal', cat:'acondicionadores',
+        nombre:'Acondicionador Milagro Herbal',
+        desc:'Desenreda fácil y nutre la hebra capilar.',
+        precio:33000, emoji:'🌿' },
+      { id:'tonico-revit-milagros', cat:'crecimiento',
+        nombre:'Tónico Revitalizante Capilar Milagros',
+        desc:'Contra la caída abundante, fortalece desde la raíz.',
+        precio:46900, emoji:'💧' },
+      { id:'shampoo-sos', cat:'shampoos',
+        nombre:'Shampoo S.O.S',
+        desc:'Shampoo de cebolla y argán con activos reparadores.',
+        precio:34900, emoji:'🚨' },
+      { id:'tonico-capilar-anyeluz', cat:'crecimiento',
+        nombre:'Tónico Capilar Anyeluz',
+        desc:'El Tónico de Cebolla Anyeluz® estimula el crecimiento.',
+        precio:70000, emoji:'🧅' },
+      { id:'hair-wax-stick', cat:'peinado',
+        nombre:'Hair Wax Stick Cera Anti Frizz',
+        desc:'Controla el frizz y los pelitos sueltos al instante.',
+        precio:35000, emoji:'🖍️' },
+      { id:'coctel-de-frutas', cat:'tratamientos',
+        nombre:'Cóctel de Frutas',
+        desc:'Mascarilla capilar con extractos frutales revitalizantes.',
+        precio:50000, emoji:'🍓' },
+      { id:'gotas-magicas', cat:'crecimiento',
+        nombre:'Gotas Mágicas Capilares',
+        desc:'Gotas concentradas contra la caída del cabello.',
+        precio:29900, emoji:'✨' },
+      { id:'desenredante-termo', cat:'peinado',
+        nombre:'Desenredante Termoprotector',
+        desc:'Protege tu cabello del secador y la plancha.',
+        precio:32000, emoji:'💜' },
+      { id:'acond-antifrizz-fort', cat:'acondicionadores',
+        nombre:'Acondicionador Antifrizz y Fortalecedor',
+        desc:'Para cabello con frizz, quiebre y debilidad.',
+        precio:15000, emoji:'🎀' },
+      { id:'blindagem-capilar', cat:'peinado',
+        nombre:'Blindagem Capilar',
+        desc:'Termoprotector blindagem para máxima protección.',
+        precio:48000, emoji:'🛡️' },
+      { id:'boster-tratamiento', cat:'tratamientos',
+        nombre:'Boster Tratamiento Capilar',
+        desc:'Tratamiento capilar concentrado de choque.',
+        precio:37900, emoji:'⚡' },
+      { id:'shampoo-emergencia', cat:'shampoos',
+        nombre:'Shampoo Emergencia Capilar',
+        desc:'Ideal para cabellos con procesos químicos.',
+        precio:32900, emoji:'🚨' },
+      { id:'shampoo-crecimiento-extracto', cat:'shampoos',
+        nombre:'Shampoo Crecimiento con Extracto de Cebolla',
+        desc:'Devuelve la fuerza y vitalidad a tu cabello.',
+        precio:39900, emoji:'🧅' },
+      { id:'cepillo-antienredo', cat:'peinado',
+        nombre:'Cepillo Anti Enredo y Masajeador',
+        desc:'Desenreda suavemente en cabello húmedo o seco.',
+        precio:24000, emoji:'🪮' },
+      { id:'crema-peinar-banano', cat:'peinado',
+        nombre:'Crema para Peinar de Banano',
+        desc:'Crema de peinar con banano: suavidad y nutrición.',
+        precio:38000, emoji:'🍌' },
+      { id:'acond-argan', cat:'acondicionadores',
+        nombre:'Acondicionador Argán',
+        desc:'Revitaliza la fibra capilar dañada por procesos químicos.',
+        precio:40000, emoji:'💛' },
+      { id:'doypack-magia-capilar', cat:'shampoos',
+        nombre:'Doypack Shampoo Magia Capilar',
+        desc:'Hidratación intensa en presentación doypack.',
+        precio:10000, emoji:'✨' },
+      { id:'tonico-romero', cat:'crecimiento',
+        nombre:'Tónico Capilar de Romero',
+        desc:'Potencializador capilar Anyeluz® con romero.',
+        precio:45000, emoji:'🌿' },
+      { id:'oleo-multifuncional', cat:'tratamientos',
+        nombre:'Óleo Capilar Multifuncional',
+        desc:'Óleo natural multifuncional: repara y sella el frizz.',
+        precio:48900, emoji:'💧' },
+      { id:'acond-banano', cat:'acondicionadores',
+        nombre:'Acondicionador de Banano',
+        desc:'Suavidad y brillo sin igual en cada aplicación.',
+        precio:40000, emoji:'🍌' },
+      { id:'shampoo-anticaspa', cat:'shampoos',
+        nombre:'Shampoo Anticaspa',
+        desc:'Combate la caspa y refresca el cuero cabelludo.',
+        precio:32900, emoji:'❄️' },
+      { id:'shampoo-cafe', cat:'shampoos',
+        nombre:'Shampoo de Café',
+        desc:'Détox capilar: vigoriza y fortalece el cabello.',
+        precio:40000, emoji:'☕' },
+      { id:'gel-definidor-rizos', cat:'peinado',
+        nombre:'Gel Definidor de Rizos',
+        desc:'El aliado para rizos definidos, fuertes y sin frizz.',
+        precio:43900, emoji:'🌀' },
+      { id:'mascarilla-rizos', cat:'tratamientos',
+        nombre:'Mascarilla Reparadora e Hidratante',
+        desc:'Rizos más hidratados, definidos y sin frizz.',
+        precio:55000, emoji:'🌀' },
+      { id:'trat-frutas', cat:'tratamientos',
+        nombre:'Tratamiento Capilar a Base de Frutas',
+        desc:'Para cabello opaco, débil o sin vitalidad.',
+        precio:33000, emoji:'🍑' },
+      { id:'dual-crema-reparacion', cat:'peinado',
+        nombre:'Dual Crema para Peinar de Reparación',
+        desc:'Crema multifuncional: brillo, suavidad y control del frizz.',
+        precio:38900, emoji:'🧴' },
+      { id:'shampoo-control-grasa-pocion', cat:'shampoos',
+        nombre:'Shampoo Control Grasa',
+        desc:'Especializado para controlar el exceso de grasa.',
+        precio:39900, emoji:'🫧' },
+      { id:'shampoo-cebolla-anyeluz', cat:'shampoos',
+        nombre:'Shampoo de Cebolla',
+        desc:'Shampoo de Cebolla Anyeluz: previene la caída.',
+        precio:45000, emoji:'🧅' },
+      { id:'bioterapia-capilar', cat:'tratamientos',
+        nombre:'Bioterapia Capilar',
+        desc:'Fórmula avanzada que revitaliza tu cabello.',
+        precio:43000, emoji:'🌿' },
+      { id:'mascarilla-reparacion-int', cat:'tratamientos',
+        nombre:'Mascarilla Capilar Reparación Intensiva',
+        desc:'Para cabello extremadamente dañado.',
+        precio:38900, emoji:'🆘' },
+      { id:'suplemento-banano', cat:'tratamientos',
+        nombre:'Suplemento Capilar de Banano',
+        desc:'Suplemento que restaura y protege la hebra capilar.',
+        precio:39900, emoji:'🍌' },
+      { id:'shampoo-ginseng', cat:'shampoos',
+        nombre:'Shampoo Ginseng',
+        desc:'El Shampoo con Ginseng Anyeluz® energiza la raíz.',
+        precio:42000, emoji:'🌱' },
+      { id:'shampoo-milagro-herbal', cat:'shampoos',
+        nombre:'Shampoo Milagro Herbal',
+        desc:'Basado en extractos herbales para un cabello sano.',
+        precio:33900, emoji:'🌿' },
+      { id:'trat-rescate-instantaneo', cat:'tratamientos',
+        nombre:'Tratamiento Capilar Rescate Instantáneo',
+        desc:'Auxilio inmediato para cabello extremadamente dañado.',
+        precio:12900, emoji:'🚑' },
+      { id:'shampoo-control-grasa-romero', cat:'shampoos',
+        nombre:'Shampoo Control Grasa Romero y Eucalipto',
+        desc:'Con activos naturales que regulan la grasa.',
+        precio:34900, emoji:'🌿' },
+      { id:'shampoo-gusano-seda', cat:'shampoos',
+        nombre:'Shampoo Gusano de Seda y Biotina',
+        desc:'Aumenta elasticidad, suavidad y fuerza.',
+        precio:40000, emoji:'🪢' },
+      { id:'refill-mascarilla-ancestral', cat:'tratamientos',
+        nombre:'Refill de Mascarilla Ancestral',
+        desc:'Recarga ecológica de la Mascarilla Ancestral.',
+        precio:35900, emoji:'♻️' },
+      { id:'contorno-de-ojos', cat:'facial',
+        nombre:'Contorno de Ojos',
+        desc:'Tratamiento intensivo para el contorno de ojos.',
+        precio:41600, emoji:'👁️' },
+      { id:'serum-niacinamida', cat:'facial',
+        nombre:'Sérum de Niacinamida',
+        desc:'Sérum facial dermatológicamente probado.',
+        precio:46900, emoji:'🧪' },
+      { id:'crema-hidratacion-profunda', cat:'facial',
+        nombre:'Crema de Hidratación Profunda',
+        desc:'Hidratación intensa de textura ligera.',
+        precio:46200, emoji:'💧' },
+      { id:'oleo-antiedad', cat:'facial',
+        nombre:'Óleo Antiedad',
+        desc:'Óleo facial Anyeluz contra los signos de la edad.',
+        precio:70000, emoji:'🌟' },
+      { id:'crema-rejuvenecedora', cat:'facial',
+        nombre:'Crema Rejuvenecedora',
+        desc:'Crema facial rejuvenecedora de uso diario.',
+        precio:60000, emoji:'🌸' },
+      { id:'suero-vitamina-c', cat:'facial',
+        nombre:'Suero Facial Vitamina C',
+        desc:'Sérum antioxidante que ilumina la piel.',
+        precio:45900, emoji:'🍊' },
+      { id:'jabon-facial-espuma', cat:'facial',
+        nombre:'Jabón Facial en Espuma',
+        desc:'Limpia suavemente sin resecar la piel.',
+        precio:31500, emoji:'🫧' },
+      { id:'suero-hidratante', cat:'facial',
+        nombre:'Suero Hidratante',
+        desc:'El Suero Hidratante Anyeluz® refresca tu piel.',
+        precio:60000, emoji:'💦' },
+      { id:'suero-colageno', cat:'facial',
+        nombre:'Suero Facial Colágeno',
+        desc:'Perfecto para hidratar y dar firmeza.',
+        precio:40300, emoji:'✨' },
+      { id:'suero-acido-hialuronico', cat:'facial',
+        nombre:'Suero Facial Ácido Hialurónico',
+        desc:'Ideal para quienes buscan hidratación profunda.',
+        precio:45900, emoji:'💧' },
+      { id:'bronceador', cat:'corporal',
+        nombre:'Bronceador',
+        desc:'Logra un bronceado dorado y uniforme.',
+        precio:35900, emoji:'☀️' },
+      { id:'tonico-reafirmante', cat:'corporal',
+        nombre:'Tónico Reafirmante',
+        desc:'Tónico suavizante y reafirmante corporal.',
+        precio:65000, emoji:'🧴' },
+      { id:'mantequilla-paradise', cat:'corporal',
+        nombre:'Mantequilla Corporal Paradise',
+        desc:'Notas dulces de coco y frutos; piel súper suave.',
+        precio:31500, emoji:'🥥' },
+      { id:'bronceador-canela', cat:'corporal',
+        nombre:'Bronceador de Canela',
+        desc:'Broncea tu piel de forma uniforme y natural.',
+        precio:42000, emoji:'🤎' },
+      { id:'crema-humectante-reafirmante', cat:'corporal',
+        nombre:'Crema Humectante y Reafirmante',
+        desc:'Humecta y reafirma la piel del cuerpo.',
+        precio:38000, emoji:'🧴' },
+      { id:'gel-reductor', cat:'corporal',
+        nombre:'Gel Reductor',
+        desc:'El Gel Reductor Anyeluz moldea y cuida tu figura.',
+        precio:38000, emoji:'🔥' },
+      { id:'pestanina-hialuronico', cat:'maquillaje',
+        nombre:'Pestañina con Ácido Hialurónico',
+        desc:'Pestañas con volumen y cuidado en un solo paso.',
+        precio:20600, emoji:'👀' },
+      { id:'polvo-suelto-rosado', cat:'maquillaje',
+        nombre:'Polvo Suelto Rosado',
+        desc:'El polvo rosado tendencia para sellar tu maquillaje.',
+        precio:28900, emoji:'🌸' },
+      { id:'polvo-suelto-traslucido', cat:'maquillaje',
+        nombre:'Polvo Suelto Traslúcido',
+        desc:'Ultra fino, sella el maquillaje sin dejar rastro.',
+        precio:33900, emoji:'🤍' },
+      { id:'browlook', cat:'maquillaje',
+        nombre:'Browlook',
+        desc:'Gel laminador de cejas de fijación natural.',
+        precio:31700, emoji:'🪞' },
+      { id:'splash-paradise', cat:'splash',
+        nombre:'Splash Corporal Paradise',
+        desc:'Notas olfativas: dulce, coco y afrutado.',
+        precio:30900, emoji:'🌺' },
+      { id:'mini-perfume-capilar', cat:'splash',
+        nombre:'Mini Perfume Capilar y Corporal',
+        desc:'Realza el color natural del cabello. Varios aromas.',
+        precio:12000, emoji:'🌸' },
+      { id:'perfume-capilar-purple', cat:'splash',
+        nombre:'Perfume Capilar Purple',
+        desc:'Composición única que perfuma y cuida tu cabello.',
+        precio:60000, emoji:'💜' },
+      { id:'splash-sugar-mini', cat:'splash',
+        nombre:'Splash Corporal Sugar Dream 100ml',
+        desc:'La versión mini de nuestro Sugar Dream.',
+        precio:19500, emoji:'🍬' },
+      { id:'perfume-capilar-boreal', cat:'splash',
+        nombre:'Perfume Capilar Boreal',
+        desc:'Perfume capilar con poder desenredante.',
+        precio:41900, emoji:'❄️' },
+      { id:'perfume-martinica', cat:'splash',
+        nombre:'Perfume Capilar y Corporal Martinica',
+        desc:'Ideal para todo tipo de cabello y piel.',
+        precio:32000, emoji:'🏝️' },
+      { id:'splash-pink-250', cat:'splash',
+        nombre:'Splash Corporal Pink 250ml',
+        desc:'Splash corporal con un aroma dulce inolvidable.',
+        precio:33900, emoji:'💗' },
+      { id:'splash-sugar-250', cat:'splash',
+        nombre:'Splash Corporal Sugar 250ml',
+        desc:'Aroma dulce irresistible para todo el día.',
+        precio:33900, emoji:'🍭' },
+      { id:'perfume-capilar-pink', cat:'splash',
+        nombre:'Perfume Capilar Pink',
+        desc:'Composición única que perfuma y protege.',
+        precio:60000, emoji:'💗' },
+      { id:'mini-splash-imperial', cat:'splash',
+        nombre:'Mini Splash Imperial',
+        desc:'Notas olfativas: ámbar y amaderado.',
+        precio:19500, emoji:'👑' },
+      { id:'perfume-gold', cat:'splash',
+        nombre:'Perfume Corporal y Capilar Gold',
+        desc:'Realza el color natural del cabello con aroma dorado.',
+        precio:32000, emoji:'✨' },
+      { id:'perfume-paradise', cat:'splash',
+        nombre:'Perfume Capilar Paradise',
+        desc:'Perfuma y cuida tu cabello a la vez.',
+        precio:32900, emoji:'🌺' },
+      { id:'perfume-majestic', cat:'splash',
+        nombre:'Perfume Capilar y Corporal Majestic',
+        desc:'Aroma fresco que realza tu cabello.',
+        precio:32000, emoji:'💎' },
+      { id:'mini-splash-paradise', cat:'splash',
+        nombre:'Mini Splash Paradise',
+        desc:'Notas dulces de coco y frutos en versión mini.',
+        precio:19500, emoji:'🌺' },
+      { id:'kit-keratina-litro', cat:'kits',
+        nombre:'Kit de Keratina Litro',
+        desc:'Kit de keratina evolución en presentación litro.',
+        precio:150000, emoji:'💎', sticker:'⭐ PRO', stickerClass:'pink' },
+      { id:'kit-keratina-120', cat:'kits',
+        nombre:'Kit de Keratina 120ml',
+        desc:'Kit de keratina evolución, tamaño personal.',
+        precio:35000, emoji:'💎' },
+      { id:'caja-sorpresa', cat:'kits',
+        nombre:'Caja Sorpresa Saju',
+        desc:'Selección de favoritos empacada con amor y detalles dulces.',
+        precio:55000, emoji:'🎁', sticker:'🎀 FAVORITA', stickerClass:'pink' },
+      { id:'ramo-regalo', cat:'kits',
+        nombre:'Ramo de Regalo',
+        desc:'Ramos de belleza armados a tu gusto. ¡El detalle perfecto!',
+        precio:45000, emoji:'💐', sticker:'💐 REGALO', stickerClass:'pink' }
+    ],
+  };
+  /* ══════════════════ FIN SITE_CONFIG ══════════════════ */
+
+  /* =====================================================
+     CAPA DE FUNCIONAMIENTO (no editar de aquí en adelante)
+  ===================================================== */
+  var WHATSAPP   = SITE_CONFIG.whatsapp;
+  var CATEGORIES = [{ id:'todos', nombre:'Todos ✨' }].concat(SITE_CONFIG.categorias);
+  var PRODUCTS   = SITE_CONFIG.items.slice();
+
+  /* ── Inyección del tema a las variables CSS ── */
+  (function applyTheme(){
+    var T = SITE_CONFIG.theme || {};
+    function mix(hex, t){ // mezcla el color con blanco (t = 0..1 hacia blanco)
+      var h = (hex||'#fff').replace('#','');
+      if(h.length===3) h = h.split('').map(function(c){return c+c;}).join('');
+      var n = parseInt(h,16), R=(n>>16)&255, G=(n>>8)&255, B=n&255;
+      var r=Math.round(R+(255-R)*t), g=Math.round(G+(255-G)*t), b=Math.round(B+(255-B)*t);
+      return 'rgb('+r+','+g+','+b+')';
+    }
+    function alpha(hex, a){
+      var h = (hex||'#000').replace('#','');
+      if(h.length===3) h = h.split('').map(function(c){return c+c;}).join('');
+      var n = parseInt(h,16);
+      return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')';
+    }
+    var r = document.documentElement.style;
+    function set(k,v){ if(v) r.setProperty(k,v); }
+    set('--bubblegum',    T.colorPrimario);
+    set('--pink-hot',     T.colorPrimario && mix(T.colorPrimario,.25));
+    set('--pink',         T.colorPrimario && mix(T.colorPrimario,.5));
+    set('--pink-soft',    T.colorPrimario && mix(T.colorPrimario,.78));
+    set('--pink-cream',   T.colorFondo);
+    set('--purple',       T.colorSecundario);
+    set('--lilac',        T.colorSecundario && mix(T.colorSecundario,.45));
+    set('--gold',         T.colorAcento);
+    set('--gold-deep',    T.colorAcento && mix(T.colorAcento,-0));
+    set('--ink',          T.colorTexto);
+    set('--ink-soft',     T.colorTextoSuave);
+    set('--shadow-pink',  T.colorPrimario && alpha(T.colorPrimario,.28));
+    set('--shadow-lilac', T.colorSecundario && alpha(T.colorSecundario,.25));
+    set('--bg1',          T.colorPrimario && mix(T.colorPrimario,.94));
+    set('--bg2',          T.colorPrimario && mix(T.colorPrimario,.86));
+    set('--bg3',          T.colorPrimario && mix(T.colorPrimario,.80));
+    set('--bg4',          T.colorSecundario && mix(T.colorSecundario,.82));
+    set('--font-bubble',  T.fuenteTitulos);
+    set('--font-script',  T.fuenteDecorativa);
+    set('--font-body',    T.fuenteTexto);
+    if (T.googleFonts){
+      var gf = document.getElementById('gf-link');
+      if (gf) gf.href = 'https://fonts.googleapis.com/css2?family=' + T.googleFonts + '&display=swap';
+    }
+    /* textos y enlaces de marca */
+    document.title = SITE_CONFIG.nombre + ' · Tienda online ✨';
+    var waBonito = WHATSAPP.replace(/^57/,'').replace(/(\d{3})(\d{3})(\d{4})/, '$1 $2 $3');
+    var fills = { nombre:SITE_CONFIG.nombre, nombreCorto:SITE_CONFIG.nombreCorto,
+                  eslogan:SITE_CONFIG.eslogan, igHandle:'@'+SITE_CONFIG.instagram, waBonito:waBonito };
+    Object.keys(fills).forEach(function(k){
+      document.querySelectorAll('[data-cfg="'+k+'"]').forEach(function(el){ el.textContent = fills[k]; });
+    });
+    document.querySelectorAll('[data-cfg-href="wa"]').forEach(function(el){ el.href = 'https://wa.me/'+WHATSAPP; });
+    document.querySelectorAll('[data-cfg-href="ig"]').forEach(function(el){ el.href = 'https://instagram.com/'+SITE_CONFIG.instagram; });
+  })();
+
+  /* =====================================================
+     UTILIDADES
+  ===================================================== */
+  function $(s, c){ return (c||document).querySelector(s); }
+  function $$(s, c){ return Array.prototype.slice.call((c||document).querySelectorAll(s)); }
+
+  function fmtCOP(n){
+    return '$' + n.toLocaleString('es-CO');
+  }
+
+  // localStorage seguro (si no está disponible, todo sigue funcionando en memoria)
+  var mem = {};
+  function lsGet(k){
+    try { return localStorage.getItem(k); } catch(e){ return mem[k] || null; }
+  }
+  function lsSet(k, v){
+    try { localStorage.setItem(k, v); } catch(e){ mem[k] = v; }
+  }
+
+  function slotHtml(p, big){
+    if (p.imagen){
+      return '<div class="slot has-img"><img src="'+p.imagen+'" alt="'+p.nombre+'"></div>';
+    }
+    var size = big ? ' style="font-size:3rem;"' : '';
+    return '<div class="slot" data-slot="prod-'+p.id+'"><div class="ph"><span class="emoji"'+size+'>'+p.emoji+'</span><small>toca para subir foto</small></div></div>';
+  }
+
+  function findProduct(id){
+    for (var i=0;i<PRODUCTS.length;i++){ if(PRODUCTS[i].id===id) return PRODUCTS[i]; }
+    return null;
+  }
+
+  /* =====================================================
+     IMÁGENES DE PRODUCTOS (toca para subir, persistidas)
+  ===================================================== */
+  var IMG_KEY = 'saju_slots_v2';
+  var imgStore = {};
+  try { imgStore = JSON.parse(lsGet(IMG_KEY) || '{}'); } catch(e){ imgStore = {}; }
+  function saveImgs(){ lsSet(IMG_KEY, JSON.stringify(imgStore)); }
+
+  function applyImg(slot, dataUrl){
+    var img = slot.querySelector('img');
+    if(!img){ img = document.createElement('img'); slot.appendChild(img); }
+    img.src = dataUrl;
+    slot.classList.add('has-img');
+  }
+
+  function wireSlot(slot){
+    var id = slot.getAttribute('data-slot');
+    if(imgStore[id]) applyImg(slot, imgStore[id]);
+
+    var input = document.createElement('input');
+    input.type = 'file'; input.accept = 'image/*'; input.style.display = 'none';
+    slot.appendChild(input);
+
+    function readFile(file){
+      if(!file || !file.type || file.type.indexOf('image/')!==0) return;
+      var r = new FileReader();
+      r.onload = function(ev){
+        imgStore[id] = ev.target.result;
+        applyImg(slot, ev.target.result);
+        saveImgs();
+        // refresca miniaturas del carrito si está abierto
+        renderCart();
+      };
+      r.readAsDataURL(file);
+    }
+
+    slot.addEventListener('click', function(e){
+      if(e.target.tagName !== 'INPUT') input.click();
+      e.stopPropagation();
+    });
+    input.addEventListener('change', function(e){ readFile(e.target.files[0]); });
+    slot.addEventListener('dragover', function(e){ e.preventDefault(); slot.classList.add('drag-over'); });
+    slot.addEventListener('dragleave', function(){ slot.classList.remove('drag-over'); });
+    slot.addEventListener('drop', function(e){
+      e.preventDefault(); slot.classList.remove('drag-over');
+      if(e.dataTransfer.files && e.dataTransfer.files[0]) readFile(e.dataTransfer.files[0]);
+    });
+  }
+
+  /* =====================================================
+     CARRITO
+  ===================================================== */
+  var CART_KEY = 'saju_cart_v1';
+  var cart = {}; // { productId: cantidad }
+  try { cart = JSON.parse(lsGet(CART_KEY) || '{}'); } catch(e){ cart = {}; }
+  function saveCart(){ lsSet(CART_KEY, JSON.stringify(cart)); }
+
+  function cartCount(){
+    var n = 0; for (var k in cart) n += cart[k];
+    return n;
+  }
+  function cartTotal(){
+    var t = 0;
+    for (var k in cart){
+      var p = findProduct(k);
+      if(p) t += p.precio * cart[k];
+    }
+    return t;
+  }
+
+  function addToCart(id, qty){
+    qty = qty || 1;
+    cart[id] = (cart[id] || 0) + qty;
+    saveCart();
+    updateBadges(true);
+    renderCart();
+    showToast('Agregado al carrito 💗');
+  }
+  function setQty(id, qty){
+    if(qty <= 0){ delete cart[id]; }
+    else { cart[id] = qty; }
+    saveCart();
+    updateBadges(false);
+    renderCart();
+  }
+
+  function updateBadges(bump){
+    var n = cartCount();
+    $('#navCartCount').textContent = n;
+    $('#fabCount').textContent = n;
+    $('#fabCount').style.display = n > 0 ? 'grid' : 'none';
+    if(bump){
+      ['#navCartBtn','#cartFab'].forEach(function(sel){
+        var el = $(sel);
+        el.classList.remove('bump');
+        void el.offsetWidth;
+        el.classList.add('bump');
+      });
+    }
+  }
+
+  var toastTimer = null;
+  function showToast(msg){
+    var t = $('#toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 1800);
+  }
+
+  function renderCart(){
+    var body = $('#cartBody');
+    var keys = Object.keys(cart);
+    if(keys.length === 0){
+      body.innerHTML = '<div class="cart-empty"><span class="big">🛍️</span>Tu carrito está vacío.<br>¡Agrega tus consentidos de la tienda! 💕</div>';
+    } else {
+      var html = '';
+      keys.forEach(function(id){
+        var p = findProduct(id);
+        if(!p) return;
+        var img = p.imagen || imgStore['prod-'+id];
+        var thumb = img ? '<img src="'+img+'" alt="">' : p.emoji;
+        html += ''
+          + '<div class="cart-item">'
+          +   '<div class="thumb">'+thumb+'</div>'
+          +   '<div class="ci-info">'
+          +     '<h4>'+p.nombre+'</h4>'
+          +     '<span class="ci-price">'+fmtCOP(p.precio)+' c/u · '+fmtCOP(p.precio*cart[id])+'</span>'
+          +   '</div>'
+          +   '<div class="ci-qty">'
+          +     '<button type="button" data-act="minus" data-id="'+id+'" aria-label="Quitar uno">−</button>'
+          +     '<span>'+cart[id]+'</span>'
+          +     '<button type="button" data-act="plus" data-id="'+id+'" aria-label="Agregar uno">+</button>'
+          +   '</div>'
+          +   '<button class="ci-del" type="button" data-act="del" data-id="'+id+'" aria-label="Eliminar">🗑️</button>'
+          + '</div>';
+      });
+      body.innerHTML = html;
+    }
+    $('#cartTotal').textContent = fmtCOP(cartTotal());
+  }
+
+  $('#cartBody').addEventListener('click', function(e){
+    var btn = e.target.closest('button[data-act]');
+    if(!btn) return;
+    var id = btn.getAttribute('data-id');
+    var act = btn.getAttribute('data-act');
+    var q = cart[id] || 0;
+    if(act === 'plus') setQty(id, q + 1);
+    if(act === 'minus') setQty(id, q - 1);
+    if(act === 'del') setQty(id, 0);
+  });
+
+  /* checkout via WhatsApp */
+  $('#checkoutBtn').addEventListener('click', function(){
+    var keys = Object.keys(cart);
+    if(keys.length === 0){ showToast('Tu carrito está vacío 🥺'); return; }
+    var lines = ['¡Hola ' + SITE_CONFIG.nombreCorto + '! 💗 Quiero hacer este pedido:', ''];
+    keys.forEach(function(id){
+      var p = findProduct(id);
+      if(!p) return;
+      lines.push('• ' + cart[id] + ' x ' + p.nombre + ' — ' + fmtCOP(p.precio * cart[id]));
+    });
+    lines.push('');
+    lines.push('Total: ' + fmtCOP(cartTotal()));
+    lines.push('');
+    lines.push('¿Me confirmas disponibilidad y envío? 🎀');
+    var url = 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(lines.join('\n'));
+    window.open(url, '_blank', 'noopener');
+  });
+
+  /* drawer open/close */
+  window.openCart = function(){
+    $('#cartDrawer').classList.add('open');
+    $('#drawerOverlay').classList.add('open');
+    renderCart();
+  };
+  window.closeCart = function(){
+    $('#cartDrawer').classList.remove('open');
+    $('#drawerOverlay').classList.remove('open');
+  };
+  $('#navCartBtn').addEventListener('click', openCart);
+  $('#cartFab').addEventListener('click', openCart);
+  $('#drawerOverlay').addEventListener('click', closeCart);
+
+  /* =====================================================
+     CATEGORÍAS + GRID DE PRODUCTOS
+  ===================================================== */
+  var activeCat = 'todos';
+
+  function renderCats(){
+    var row = $('#catRow');
+    row.innerHTML = CATEGORIES.map(function(c){
+      return '<button class="cat-chip'+(c.id===activeCat?' active':'')+'" type="button" data-cat="'+c.id+'">'+c.nombre+'</button>';
+    }).join('');
+  }
+  $('#catRow').addEventListener('click', function(e){
+    var chip = e.target.closest('.cat-chip');
+    if(!chip) return;
+    activeCat = chip.getAttribute('data-cat');
+    renderCats();
+    renderGrid();
+  });
+
+  function catName(id){
+    for(var i=0;i<CATEGORIES.length;i++){ if(CATEGORIES[i].id===id) return CATEGORIES[i].nombre; }
+    return id;
+  }
+
+  function cardHtml(p){
+    var sticker = p.sticker ? '<span class="sticker '+p.stickerClass+'">'+p.sticker+'</span>' : '';
+    return ''
+      + '<article class="prod">'
+      +   sticker
+      +   slotHtml(p)
+      +   '<div class="body">'
+      +     '<span class="catlabel">'+catName(p.cat)+'</span>'
+      +     '<h3 data-detail="'+p.id+'">'+p.nombre+'</h3>'
+      +     '<p>'+p.desc+'</p>'
+      +     '<span class="price">'+fmtCOP(p.precio)+'</span>'
+      +     '<div class="card-actions">'
+      +       '<button class="mini-btn mini-add" type="button" data-add="'+p.id+'">Agregar 🛍️</button>'
+      +       '<button class="mini-btn mini-view" type="button" data-detail="'+p.id+'">Ver detalle 👀</button>'
+      +     '</div>'
+      +   '</div>'
+      + '</article>';
+  }
+
+  var PREVIEW_POR_CATEGORIA = 4; // cuántos productos muestra cada bloque en "Todos"
+
+  function renderGrid(){
+    var grid = $('#prodGrid');
+
+    if (activeCat === 'todos'){
+      // vista agrupada: un bloque por categoría con vista previa
+      grid.classList.add('grouped');
+      grid.innerHTML = CATEGORIES.filter(function(c){ return c.id !== 'todos'; }).map(function(c){
+        var list = PRODUCTS.filter(function(p){ return p.cat === c.id; });
+        if (!list.length) return '';
+        var preview = list.slice(0, PREVIEW_POR_CATEGORIA);
+        var verMas = list.length > preview.length
+          ? '<div class="cat-more"><button class="mini-btn mini-view" type="button" data-cat-go="'+c.id+'">Ver los '+list.length+' de '+c.nombre+' →</button></div>'
+          : '';
+        return '<section class="cat-block">'
+          +   '<h3 class="cat-title">'+c.nombre+' <span class="cat-count">'+list.length+'</span></h3>'
+          +   '<div class="prod-grid">'+preview.map(cardHtml).join('')+'</div>'
+          +   verMas
+          + '</section>';
+      }).join('');
+    } else {
+      grid.classList.remove('grouped');
+      var list = PRODUCTS.filter(function(p){ return p.cat === activeCat; });
+      grid.innerHTML = list.length
+        ? list.map(cardHtml).join('')
+        : '<div class="empty-cat" style="grid-column:1/-1;">Pronto tendremos productos en esta categoría 💌</div>';
+    }
+    // re-cablear slots de imagen del grid
+    $$('.slot[data-slot]', grid).forEach(wireSlot);
+  }
+
+  $('#prodGrid').addEventListener('click', function(e){
+    var go = e.target.closest('[data-cat-go]');
+    if(go){
+      activeCat = go.getAttribute('data-cat-go');
+      renderCats(); renderGrid();
+      var sec = document.getElementById('tienda');
+      if(sec) sec.scrollIntoView({behavior:'smooth'});
+      return;
+    }
+    var add = e.target.closest('[data-add]');
+    if(add){ addToCart(add.getAttribute('data-add'), 1); return; }
+    var det = e.target.closest('[data-detail]');
+    if(det){ openDetail(det.getAttribute('data-detail')); }
+  });
+
+  /* =====================================================
+     PÁGINA DE DETALLE DEL PRODUCTO
+  ===================================================== */
+  var detailQty = 1;
+
+  function openDetail(id){
+    var p = findProduct(id);
+    if(!p) return;
+    detailQty = 1;
+    var card = $('#detailCard');
+    var sticker = p.sticker ? '<span class="sticker '+p.stickerClass+'" style="position:absolute;top:14px;left:14px;transform:rotate(-6deg);">'+p.sticker+'</span>' : '';
+    card.innerHTML = ''
+      + '<button class="detail-close" type="button" aria-label="Cerrar">✕</button>'
+      + '<div class="detail-grid">'
+      +   '<div class="detail-img">'
+      +     sticker
+      +     slotHtml(p, true)
+      +   '</div>'
+      +   '<div class="detail-info">'
+      +     '<span class="catlabel">'+catName(p.cat)+'</span>'
+      +     '<h2>'+p.nombre+'</h2>'
+      +     '<span class="star">★★★★★ favorito de Saju</span>'
+      +     '<p class="desc">'+(p.descLarga || p.desc)+'</p>'
+      +     '<div class="price-big">'+fmtCOP(p.precio)+'</div>'
+      +     '<div class="qty-row">'
+      +       '<span class="lbl">Cantidad:</span>'
+      +       '<div class="qty-ctrl">'
+      +         '<button type="button" id="qMinus" aria-label="Menos">−</button>'
+      +         '<span class="q" id="qVal">1</span>'
+      +         '<button type="button" id="qPlus" aria-label="Más">+</button>'
+      +       '</div>'
+      +     '</div>'
+      +     '<div class="detail-actions">'
+      +       '<button class="btn btn-pink" type="button" id="detailAdd">Agregar al carrito 🛍️</button>'
+      +       '<a class="btn btn-wa" target="_blank" rel="noopener" href="https://wa.me/'+WHATSAPP+'?text='+encodeURIComponent('¡Hola '+SITE_CONFIG.nombreCorto+'! Tengo una pregunta sobre: '+p.nombre+' 💗')+'">Preguntar 💬</a>'
+      +     '</div>'
+      +   '</div>'
+      + '</div>';
+
+    $('.detail-close', card).addEventListener('click', closeDetail);
+    $('#qMinus').addEventListener('click', function(){ if(detailQty>1){ detailQty--; $('#qVal').textContent = detailQty; } });
+    $('#qPlus').addEventListener('click', function(){ detailQty++; $('#qVal').textContent = detailQty; });
+    $('#detailAdd').addEventListener('click', function(){
+      addToCart(p.id, detailQty);
+      closeDetail();
+      openCart();
+    });
+    $$('.slot[data-slot]', card).forEach(wireSlot);
+
+    $('#detailOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeDetail(){
+    $('#detailOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  $('#detailOverlay').addEventListener('click', function(e){
+    if(e.target === this) closeDetail();
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){ closeDetail(); closeCart(); }
+  });
+
+  /* =====================================================
+     EXTRAS DEL DISEÑO ORIGINAL
+  ===================================================== */
+  // scroll reveal (con respaldo: si el navegador no avisa, todo se muestra igual)
+  function revealAll(){ $$('.reveal').forEach(function(el){ el.classList.add('in'); }); }
+  try {
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(en){
+          if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); }
+        });
+      },{threshold:.12});
+      $$('.reveal').forEach(function(el){ io.observe(el); });
+      // seguridad: si en 1 segundo nada se ha revelado, mostrar todo
+      setTimeout(function(){
+        if ($$('.reveal').some(function(el){ return !el.classList.contains('in'); })) revealAll();
+      }, 1000);
+    } else { revealAll(); }
+  } catch(e){ revealAll(); }
+
+  // marquee de marcas
+  var track = $('#brandTrack');
+  if(track){ track.innerHTML += track.innerHTML; }
+
+  // slots del hero
+  $$('.collage .slot[data-slot]').forEach(wireSlot);
+
+  /* =====================================================
+     FIREBASE (opcional): si SITE_CONFIG.firebase tiene
+     claves, carga productos y categorías desde el panel
+     admin (colecciones 'products' y 'categories').
+  ===================================================== */
+  function loadFromFirebase(){
+    var fb = SITE_CONFIG.firebase || {};
+    if (!fb.apiKey || fb.apiKey === 'TU_API_KEY' || typeof firebase === 'undefined') return;
+    try {
+      firebase.initializeApp(fb);
+      var db = firebase.firestore();
+      Promise.all([
+        db.collection('categories').get(),
+        db.collection('products').get()
+      ]).then(function(res){
+        var cats = [];
+        res[0].forEach(function(d){
+          var c = d.data();
+          if (c.active === false) return;
+          cats.push({ id: c.slug || d.id, nombre: c.name || d.id });
+        });
+        var prods = [];
+        res[1].forEach(function(d){
+          var p = d.data();
+          if (p.active === false) return;
+          var desc = (p.description || '').trim();
+          var corta = desc.length > 110 ? desc.slice(0, 107) + '…' : desc;
+          prods.push({
+            id: d.id,
+            cat: p.category || 'todos',
+            nombre: p.name || 'Producto',
+            desc: corta,
+            descLarga: desc,
+            precio: p.price || 0,
+            imagen: p.imageUrl || (p.images && p.images[0]) || '',
+            emoji: '✨',
+            sticker: (p.priceWas && p.priceWas > p.price) ? '🔥 OFERTA' : '',
+            stickerClass: 'pink'
+          });
+        });
+        if (prods.length){
+          PRODUCTS = prods;
+          if (cats.length) CATEGORIES = [{ id:'todos', nombre:'Todos ✨' }].concat(cats);
+          activeCat = 'todos';
+          renderCats(); renderGrid(); renderCart();
+        }
+      }).catch(function(e){ console.warn('Firestore no disponible; usando catálogo local.', e); });
+    } catch(e){ console.warn('Firebase no configurado correctamente; usando catálogo local.', e); }
+  }
+  if (document.readyState === 'complete') loadFromFirebase();
+  else window.addEventListener('load', loadFromFirebase);
+
+  /* limpiar del carrito ids de productos que ya no existen */
+  Object.keys(cart).forEach(function(id){ if(!findProduct(id)) delete cart[id]; });
+  saveCart();
+
+  /* init */
+  renderCats();
+  renderGrid();
+  renderCart();
+  updateBadges(false);
+})();
+</script>
+
+</body>
+</html>
