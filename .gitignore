@@ -1,0 +1,10 @@
+# Nunca subir el panel admin (contiene api_secret de Cloudinary)
+Admin_Saju.html
+Admin_Saju-backup-antes-de-auth.html
+Admin_Saju-backup-antes-firebase.html
+*backup*
+
+# Herramientas locales de desarrollo
+serve.mjs
+screenshot.mjs
+temporary screenshots/
