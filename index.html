@@ -545,7 +545,7 @@
 <main class="wrap">
 
   <!-- HERO -->
-  <section class="hero">
+  <section class="hero" id="sec-hero">
     <div class="badge-multi" aria-hidden="true">
       <div class="ring">
         <svg viewBox="0 0 120 120">
@@ -626,7 +626,7 @@
   </section>
 
   <!-- FINAL CTA -->
-  <section class="final reveal">
+  <section class="final reveal" id="sec-final">
     <h2 data-ed="final.title">¿Lista para brillar? 💖</h2>
     <div class="sub" data-ed="final.sub">Llena tu carrito y envíanos tu pedido ✨</div>
     <div class="cta-row">
@@ -1245,6 +1245,72 @@
     } else { revealAll(); }
   } catch(e){ revealAll(); }
 
+  function escHtml(s){ return String(s==null?'':s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+  // Renderizadores de secciones NUEVAS (estilo rosa)
+  var SECTION_RENDERERS = {
+    texto: function(d){
+      return '<section class="sec reveal in custom-sec"><div class="sec-head">'
+        + (d.kicker ? '<span class="kicker">'+escHtml(d.kicker)+'</span>' : '')
+        + (d.title ? '<h2>'+escHtml(d.title)+'</h2>' : '')
+        + (d.body ? '<p>'+escHtml(d.body)+'</p>' : '')
+        + '</div></section>';
+    },
+    imagen_texto: function(d){
+      var img = d.image
+        ? '<div style="flex:1 1 320px;min-width:280px;"><img src="'+escHtml(d.image)+'" alt="" style="width:100%;border-radius:26px;box-shadow:0 16px 36px var(--shadow-pink);object-fit:cover;"></div>'
+        : '';
+      var txt = '<div style="flex:1 1 320px;min-width:280px;">'
+        + (d.kicker ? '<span class="kicker">'+escHtml(d.kicker)+'</span>' : '')
+        + (d.title ? '<h2 style="margin:.2em 0;">'+escHtml(d.title)+'</h2>' : '')
+        + (d.body ? '<p style="line-height:1.7;">'+escHtml(d.body)+'</p>' : '')
+        + (d.cta ? '<div class="cta-row" style="margin-top:18px;"><a class="btn btn-pink" href="'+escHtml(d.ctaHref||'#tienda')+'">'+escHtml(d.cta)+'</a></div>' : '')
+        + '</div>';
+      var order = d.imagePos === 'right' ? (txt+img) : (img+txt);
+      return '<section class="sec reveal in custom-sec"><div style="display:flex;gap:34px;align-items:center;flex-wrap:wrap;">'+order+'</div></section>';
+    },
+    banner: function(d){
+      return '<section class="sec reveal in custom-sec">'
+        + '<div style="position:relative;border-radius:30px;overflow:hidden;min-height:240px;display:flex;align-items:center;justify-content:center;text-align:center;padding:48px 24px;'
+        + (d.image ? 'background:linear-gradient(rgba(122,46,87,.35),rgba(122,46,87,.35)),url(\''+escHtml(d.image)+'\') center/cover;color:#fff;' : 'background:linear-gradient(135deg,var(--bubblegum),var(--purple));color:#fff;')
+        + 'box-shadow:0 16px 40px var(--shadow-pink);">'
+        + '<div>'
+        + (d.title ? '<h2 style="color:#fff;margin-bottom:8px;">'+escHtml(d.title)+'</h2>' : '')
+        + (d.sub ? '<p style="color:#fff;opacity:.95;max-width:560px;margin:0 auto;">'+escHtml(d.sub)+'</p>' : '')
+        + (d.cta ? '<div class="cta-row" style="justify-content:center;margin-top:18px;"><a class="btn btn-pink" href="'+escHtml(d.ctaHref||'#tienda')+'">'+escHtml(d.cta)+'</a></div>' : '')
+        + '</div></div></section>';
+    },
+    marquee: function(d){
+      var phrases = (d.phrases || '').split('\n').filter(function(x){ return x.trim(); });
+      if(!phrases.length) return '';
+      var run = phrases.map(function(p){ return '<span style="padding:0 28px;font-family:var(--font-bubble);font-weight:700;color:var(--bubblegum);">'+escHtml(p)+' ✨</span>'; }).join('');
+      return '<section class="custom-sec" style="overflow:hidden;padding:18px 0;background:var(--pink-soft);margin:24px 0;">'
+        + '<div style="display:flex;white-space:nowrap;animation:marquee 22s linear infinite;width:max-content;">'+run+run+'</div></section>';
+    }
+  };
+
+  // Reordena/oculta secciones e inserta las nuevas según el layout guardado
+  function applyLayout(layout){
+    if(!layout || !layout.length) return;
+    var main = document.querySelector('main.wrap');
+    if(!main) return;
+    var coreIds = { hero:'sec-hero', marcas:'marcas', tienda:'tienda', final:'sec-final' };
+    $$('.custom-sec', main).forEach(function(el){ el.remove(); });
+    Object.keys(coreIds).forEach(function(t){ var el = document.getElementById(coreIds[t]); if(el) el.style.display = 'none'; });
+    layout.forEach(function(block){
+      if(!block || block.visible === false) return;
+      if(coreIds[block.type]){
+        var el = document.getElementById(coreIds[block.type]);
+        if(el){ el.style.display = ''; main.appendChild(el); }
+      } else if(SECTION_RENDERERS[block.type]){
+        var wrap = document.createElement('div');
+        wrap.innerHTML = SECTION_RENDERERS[block.type](block.data || {});
+        var node = wrap.firstElementChild;
+        if(node){ node.classList.add('custom-sec'); main.appendChild(node); }
+      }
+    });
+  }
+
   // Aplica el contenido editable (textos del hero y secciones) desde Firebase
   function applyStoreContent(content){
     if(!content) return;
@@ -1264,6 +1330,8 @@
         if(el){ el.classList.add('has-img'); el.innerHTML = '<img src="'+url+'" alt="">'; }
       });
     }
+    // Orden / visibilidad / secciones nuevas
+    applyLayout(content.layout);
   }
 
   // marquee de marcas — se llena desde Firebase (colección 'brands')
