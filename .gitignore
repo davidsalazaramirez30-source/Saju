@@ -5,6 +5,9 @@ Admin_Saju-backup-antes-firebase.html
 *backup*
 
 # Herramientas locales de desarrollo
-serve.mjs
-screenshot.mjs
+*.mjs
 temporary screenshots/
+node_modules/
+package.json
+package-lock.json
+.migrar.sh
