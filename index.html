@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="brand_assets/logo.png">
+<link rel="apple-touch-icon" href="brand_assets/logo.png">
 <title>Saju Multimarca · Tienda online ✨</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,32 +14,49 @@
 <script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
   :root{
-    --bubblegum:#ff4f9a;
+    /* === PALETA SAJU (fija) ===
+       Títulos en negro, subtítulos/acentos en fucsia, botones en lavanda,
+       fondo blanco con blobs pastel del logo. */
+    --bubblegum:#1a1620;     /* TÍTULOS: negro cálido */
     --pink-hot:#ff7ab8;
     --pink:#ffa6cf;
     --pink-soft:#ffd9ea;
-    --pink-cream:#fff0f7;
-    --lilac:#c9a3ff;
-    --purple:#9b6dff;
+    --pink-cream:#fff5fa;
+    --lilac:#d9cdef;         /* lila suave (logo) */
+    --purple:#ff4f9a;        /* ACENTOS/SUBTÍTULOS: fucsia marca */
     --gold:#f6c945;
     --gold-deep:#e0a82e;
-    --ink:#7a2e57;
-    --ink-soft:#a4628a;
-    --white:#fffafd;
-    --shadow-pink:rgba(255,79,154,.28);
-    --shadow-lilac:rgba(155,109,255,.25);
+    --ink:#1a1620;           /* texto fuerte */
+    --ink-soft:#6b6470;      /* texto de cuerpo (gris) */
+    --white:#ffffff;
+    --shadow-pink:rgba(120,110,140,.18);
+    --shadow-lilac:rgba(120,110,140,.16);
+    --blob1:#ffd6ea;         /* rosa pastel */
+    --blob2:#e3d9f7;         /* lila */
+    --blob3:#c9f2ef;         /* turquesa */
+    --pink-glow:#ffe1ef;
+    --chip-bg:#efe9fb;       /* lila claro (chips) */
+    --btn:#BDB0D0;           /* BOTONES: lavanda */
+    --btn-text:#2e2836;      /* texto sobre botones */
+    --fucsia:#ff4f9a;        /* fucsia de marca explícito */
+    --titulo:#1a1620;        /* negro de títulos explícito */
     --font-bubble:"Baloo 2", system-ui, sans-serif;
-    --font-script:"Pacifico", cursive;
+    --font-script:"Baloo 2", system-ui, sans-serif; /* antes Pacifico (cursiva) */
     --font-body:"Quicksand", system-ui, sans-serif;
   }
 
   *{box-sizing:border-box;margin:0;padding:0;}
   html{scroll-behavior:smooth;}
+  /* splash de carga (anti-parpadeo) */
+  #sc-splash{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;
+    background:#ffffff;transition:opacity .35s ease;}
+  #sc-splash img{height:96px;width:auto;animation:splashPulse 1.1s ease-in-out infinite;}
+  #sc-splash.hide{opacity:0;pointer-events:none;}
+  @keyframes splashPulse{0%,100%{transform:scale(1);opacity:.82;}50%{transform:scale(1.07);opacity:1;}}
   body{
     font-family:var(--font-body);
     color:var(--ink);
-    background:
-      radial-gradient(140% 120% at 10% 0%, var(--bg1,#fff4fa) 0%, var(--bg2,#ffe6f3) 35%, var(--bg3,#ffd9ee) 60%, var(--bg4,#f0dcff) 100%);
+    background:#ffffff;
     background-attachment:fixed;
     min-height:100vh;
     overflow-x:hidden;
@@ -48,9 +67,9 @@
   /* ---------- decorative floating background ---------- */
   .sky{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
   .blob{position:absolute;border-radius:50%;filter:blur(40px);opacity:.55;}
-  .blob.b1{width:340px;height:340px;background:#ffb7d8;top:-80px;left:-60px;animation:drift 18s ease-in-out infinite;}
-  .blob.b2{width:300px;height:300px;background:#d9b8ff;top:30%;right:-70px;animation:drift 22s ease-in-out infinite reverse;}
-  .blob.b3{width:260px;height:260px;background:#ffd59e;bottom:-60px;left:25%;opacity:.4;animation:drift 26s ease-in-out infinite;}
+  .blob.b1{width:340px;height:340px;background:var(--blob1);top:-80px;left:-60px;animation:drift 18s ease-in-out infinite;}
+  .blob.b2{width:300px;height:300px;background:var(--blob2);top:30%;right:-70px;animation:drift 22s ease-in-out infinite reverse;}
+  .blob.b3{width:260px;height:260px;background:var(--blob3);bottom:-60px;left:25%;opacity:.4;animation:drift 26s ease-in-out infinite;}
 
   .twinkle{position:absolute;font-size:22px;opacity:.85;animation:floaty 7s ease-in-out infinite, twinkle 3.5s ease-in-out infinite;filter:drop-shadow(0 2px 4px rgba(255,79,154,.25));}
 
@@ -91,8 +110,15 @@
     font-family:var(--font-bubble);font-weight:800;font-size:1.4rem;
     color:var(--bubblegum);letter-spacing:.5px;line-height:1;
     -webkit-text-stroke:1.5px #fff;paint-order:stroke fill;
-    margin-right:6px;cursor:pointer;
+    margin-right:6px;cursor:pointer;display:inline-flex;align-items:center;
   }
+  /* ---- logo (imagen) con respaldo a texto ---- */
+  .brand-logo{display:inline-block;vertical-align:middle;width:auto;}
+  .nav-pill .logo .brand-logo{height:42px;}
+  .hero h1 .brand-logo{height:clamp(96px,19vw,200px);}
+  .logo-fallback{display:none;}
+  .logo-failed .brand-logo{display:none;}
+  .logo-failed .logo-fallback{display:inline;}
   .nav-links{display:flex;gap:4px;flex-wrap:wrap;align-items:center;}
   .nav-links a{
     text-decoration:none;color:var(--ink);font-weight:600;font-size:.9rem;
@@ -108,8 +134,8 @@
   /* cart button in nav */
   .cart-btn{
     position:relative;display:inline-flex;align-items:center;gap:7px;
-    background:linear-gradient(135deg,var(--bubblegum),var(--purple));
-    color:#fff;border:none;cursor:pointer;
+    background:var(--btn);
+    color:var(--btn-text);border:none;cursor:pointer;
     font-family:var(--font-bubble);font-weight:700;font-size:.92rem;
     padding:9px 16px;border-radius:999px;
     box-shadow:0 6px 14px var(--shadow-pink);transition:transform .18s;
@@ -146,14 +172,14 @@
     font-size:clamp(4.2rem,13vw,8.5rem);line-height:.86;letter-spacing:1px;
     color:var(--bubblegum);
     -webkit-text-stroke:7px #fff;paint-order:stroke fill;
-    filter:drop-shadow(0 10px 0 #ffd0e6) drop-shadow(0 16px 24px var(--shadow-pink));
+    filter:drop-shadow(0 10px 0 var(--pink-glow)) drop-shadow(0 16px 24px var(--shadow-pink));
     margin:18px 0 4px;
   }
   .hero .sub-script{
     font-family:var(--font-script);font-size:clamp(1.5rem,3.4vw,2.3rem);
     color:var(--purple);margin-bottom:14px;line-height:1.1;text-shadow:0 2px 0 #fff;
   }
-  .hero p.lede{font-size:clamp(1rem,1.5vw,1.15rem);color:var(--ink-soft);font-weight:500;max-width:30ch;margin-bottom:24px;}
+  .hero p.lede{font-size:clamp(1rem,1.5vw,1.15rem);color:var(--fucsia);font-weight:600;max-width:30ch;margin-bottom:24px;}
   .cta-row{display:flex;gap:14px;flex-wrap:wrap;}
   .btn{
     display:inline-flex;align-items:center;gap:9px;text-decoration:none;
@@ -165,7 +191,7 @@
   .btn:active{transform:translateY(-1px) scale(.98);}
   .btn-wa{background:linear-gradient(135deg,#3ad675,#1faa53);color:#fff;box-shadow:0 12px 26px rgba(31,170,83,.45);}
   .btn-ig{background:linear-gradient(135deg,#ff5fa2,#c44bd6,#9b6dff);color:#fff;box-shadow:0 12px 26px var(--shadow-pink);}
-  .btn-pink{background:linear-gradient(135deg,var(--bubblegum),var(--purple));color:#fff;box-shadow:0 12px 26px var(--shadow-pink);}
+  .btn-pink{background:var(--btn);color:var(--btn-text);box-shadow:0 12px 26px var(--shadow-pink);}
   .btn .ico{width:22px;height:22px;fill:currentColor;}
 
   /* hero collage */
@@ -190,7 +216,7 @@
   /* image slots (drag & drop) */
   .slot{
     position:relative;border-radius:8px;overflow:hidden;cursor:pointer;
-    background:repeating-linear-gradient(45deg,#ffe3f0 0 12px,#ffd2e8 12px 24px);
+    background:repeating-linear-gradient(45deg,var(--pink-cream) 0 12px,var(--pink-soft) 12px 24px);
     display:grid;place-items:center;text-align:center;transition:.2s;
   }
   .slot:hover{filter:brightness(.97);}
@@ -212,7 +238,7 @@
     -webkit-text-stroke:4px #fff;paint-order:stroke fill;
     filter:drop-shadow(0 6px 12px var(--shadow-pink));margin-top:2px;
   }
-  .sec-head p{color:var(--ink-soft);font-weight:500;max-width:46ch;margin:12px auto 0;}
+  .sec-head p{color:var(--fucsia);font-weight:600;max-width:46ch;margin:12px auto 0;}
 
   /* ---------- brands marquee ---------- */
   .marquee{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);}
@@ -225,7 +251,7 @@
     border-radius:40px 44px 38px 46px;
     box-shadow:0 14px 28px var(--shadow-pink);
   }
-  .brand-blob:nth-child(even){border-color:#e7d4ff;border-radius:46px 38px 44px 40px;}
+  .brand-blob:nth-child(even){border-color:var(--lilac);border-radius:46px 38px 44px 40px;}
   .brand-blob .bname{font-family:var(--font-bubble);font-weight:700;font-size:1.25rem;color:var(--ink);}
   .brand-blob .btag{font-size:.74rem;color:var(--ink-soft);font-weight:600;}
   .brand-blob .dot{font-size:1.1rem;}
@@ -241,7 +267,7 @@
   }
   .cat-chip:hover{transform:translateY(-3px);}
   .cat-chip.active{
-    background:linear-gradient(135deg,var(--bubblegum),var(--purple));color:#fff;
+    background:var(--btn);color:var(--btn-text);border-color:var(--btn);
   }
 
   /* ---------- product cards ---------- */
@@ -270,7 +296,7 @@
   .prod:hover{transform:translateY(-8px) rotate(1deg);box-shadow:0 26px 48px var(--shadow-pink);}
   .prod .slot{height:200px;border-radius:18px;}
   .prod .body{padding:14px 8px 4px;display:flex;flex-direction:column;flex:1;}
-  .prod .catlabel{font-size:.72rem;font-weight:700;color:var(--purple);background:#f3eaff;padding:3px 12px;border-radius:999px;align-self:flex-start;margin-bottom:6px;}
+  .prod .catlabel{font-size:.72rem;font-weight:700;color:var(--purple);background:var(--chip-bg);padding:3px 12px;border-radius:999px;align-self:flex-start;margin-bottom:6px;}
   .prod h3{font-family:var(--font-bubble);font-weight:700;color:var(--bubblegum);font-size:1.3rem;line-height:1.05;margin:2px 0 6px;cursor:pointer;}
   .prod h3:hover{color:var(--purple);}
   .prod p{font-size:.88rem;color:var(--ink-soft);font-weight:500;margin-bottom:12px;flex:1;}
@@ -283,7 +309,7 @@
     transition:transform .18s;
   }
   .mini-btn:hover{transform:scale(1.06);}
-  .mini-add{background:linear-gradient(135deg,var(--bubblegum),var(--purple));color:#fff;box-shadow:0 8px 18px var(--shadow-pink);}
+  .mini-add{background:var(--btn);color:var(--btn-text);box-shadow:0 8px 18px var(--shadow-pink);}
   .mini-view{background:var(--pink-cream);color:var(--bubblegum);border:2px solid var(--pink-soft);}
   .prod .sticker{
     position:absolute;top:-12px;right:-10px;z-index:4;
@@ -320,7 +346,7 @@
   .detail-img{background:var(--pink-cream);min-height:380px;display:grid;place-items:center;position:relative;}
   .detail-img .slot{width:100%;height:100%;min-height:380px;border-radius:0;}
   .detail-info{padding:38px 32px;display:flex;flex-direction:column;}
-  .detail-info .catlabel{font-size:.74rem;font-weight:700;color:var(--purple);background:#f3eaff;padding:4px 14px;border-radius:999px;align-self:flex-start;}
+  .detail-info .catlabel{font-size:.74rem;font-weight:700;color:var(--purple);background:var(--chip-bg);padding:4px 14px;border-radius:999px;align-self:flex-start;}
   .detail-info h2{
     font-family:var(--font-bubble);font-weight:800;color:var(--bubblegum);
     font-size:clamp(1.6rem,3.4vw,2.3rem);line-height:1.05;margin:10px 0 6px;
@@ -403,7 +429,7 @@
   .cart-fab{
     position:fixed;right:18px;bottom:18px;z-index:80;
     width:62px;height:62px;border-radius:50%;border:3px solid #fff;cursor:pointer;
-    background:linear-gradient(135deg,var(--bubblegum),var(--purple));color:#fff;
+    background:var(--btn);color:var(--btn-text);
     font-size:1.5rem;box-shadow:0 14px 30px var(--shadow-pink);
     display:grid;place-items:center;transition:transform .18s;
   }
@@ -419,7 +445,7 @@
   /* ---------- final CTA ---------- */
   .final{
     margin:56px 0 30px;text-align:center;padding:50px 26px;border-radius:36px;
-    background:radial-gradient(120% 140% at 50% 0%,#ffd9ee,#f0dcff);
+    background:radial-gradient(120% 140% at 50% 0%,var(--pink-soft),var(--chip-bg));
     border:3px dashed #fff;position:relative;
   }
   .final h2{
@@ -460,7 +486,7 @@
 
     .hero{padding:30px 0 16px;}
     .hero h1{font-size:clamp(3.4rem,17vw,5rem);-webkit-text-stroke:4px #fff;
-      filter:drop-shadow(0 6px 0 #ffd0e6) drop-shadow(0 10px 16px var(--shadow-pink));}
+      filter:drop-shadow(0 6px 0 var(--pink-glow)) drop-shadow(0 10px 16px var(--shadow-pink));}
     .hero .sub-script{font-size:1.15rem;}
     .collage{height:300px;max-width:340px;}
     .badge-multi{width:84px;height:84px;font-size:.6rem;}
@@ -513,6 +539,9 @@
 </head>
 <body>
 
+<!-- splash: evita el parpadeo de textos viejos mientras carga el panel -->
+<div id="sc-splash"><img src="brand_assets/logo.png" alt="Saju" onerror="this.style.display='none'"></div>
+
 <!-- floating decorative layer -->
 <div class="sky" aria-hidden="true">
   <span class="blob b1"></span>
@@ -530,7 +559,7 @@
 <!-- nav -->
 <header class="nav">
   <nav class="nav-pill">
-    <span class="logo" data-cfg="nombreCorto" onclick="window.scrollTo({top:0,behavior:'smooth'})">Saju</span>
+    <span class="logo" onclick="window.scrollTo({top:0,behavior:'smooth'})"><img class="brand-logo" src="brand_assets/logo.png" alt="Saju" onerror="this.closest('.logo').classList.add('logo-failed')"><span class="logo-fallback">Saju</span></span>
     <div class="nav-links">
       <a href="#marcas" data-ed="nav.marcas">Marcas</a>
       <a href="#tienda" data-ed="nav.tienda">Tienda</a>
@@ -551,8 +580,8 @@
         <svg viewBox="0 0 120 120">
           <defs><path id="circlePath" d="M60,60 m-46,0 a46,46 0 1,1 92,0 a46,46 0 1,1 -92,0"></path></defs>
           <circle cx="60" cy="60" r="58" fill="#fff"></circle>
-          <circle cx="60" cy="60" r="58" fill="none" stroke="#ffd0e6" stroke-width="3" stroke-dasharray="2 7"></circle>
-          <text fill="#ff4f9a" font-family="Baloo 2, sans-serif" font-weight="700" font-size="13" letter-spacing="2.5">
+          <circle cx="60" cy="60" r="58" fill="none" style="stroke:var(--pink-glow)" stroke-width="3" stroke-dasharray="2 7"></circle>
+          <text style="fill:var(--bubblegum)" font-family="Baloo 2, sans-serif" font-weight="700" font-size="13" letter-spacing="2.5">
             <textPath href="#circlePath" startOffset="0%">✦ MULTIMARCA ✦ BELLEZA ✦ </textPath>
           </text>
         </svg>
@@ -563,7 +592,7 @@
     <div class="hero-grid">
       <div>
         <span class="eyebrow" data-ed="hero.eyebrow">✨ Tienda multimarca de belleza</span>
-        <h1 data-cfg="nombreCorto">Saju</h1>
+        <h1><img class="brand-logo" src="brand_assets/logo.png" alt="Saju" onerror="this.closest('h1').classList.add('logo-failed')"><span class="logo-fallback">Saju</span></h1>
         <div class="sub-script" data-ed="hero.subScript">tu rincón rosa de skincare &amp; cabello 💗</div>
         <p class="lede" data-ed="hero.lede">Explora la tienda, llena tu carrito y envía tu pedido en un toque por WhatsApp. ¡Todo con amorcito! 🎀</p>
         <div class="cta-row">
@@ -746,6 +775,7 @@
       colorPrimario:    '#ff4f9a',
       colorSecundario:  '#9b6dff',
       colorFondo:       '#fff0f7',
+      colorFondoPagina: '#BDB0D0',
       colorTexto:       '#7a2e57',
       colorTextoSuave:  '#a4628a',
       colorAcento:      '#f6c945',
@@ -819,28 +849,10 @@
       var n = parseInt(h,16);
       return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')';
     }
-    var r = document.documentElement.style;
-    function set(k,v){ if(v) r.setProperty(k,v); }
-    set('--bubblegum',    T.colorPrimario);
-    set('--pink-hot',     T.colorPrimario && mix(T.colorPrimario,.25));
-    set('--pink',         T.colorPrimario && mix(T.colorPrimario,.5));
-    set('--pink-soft',    T.colorPrimario && mix(T.colorPrimario,.78));
-    set('--pink-cream',   T.colorFondo);
-    set('--purple',       T.colorSecundario);
-    set('--lilac',        T.colorSecundario && mix(T.colorSecundario,.45));
-    set('--gold',         T.colorAcento);
-    set('--gold-deep',    T.colorAcento && mix(T.colorAcento,-0));
-    set('--ink',          T.colorTexto);
-    set('--ink-soft',     T.colorTextoSuave);
-    set('--shadow-pink',  T.colorPrimario && alpha(T.colorPrimario,.28));
-    set('--shadow-lilac', T.colorSecundario && alpha(T.colorSecundario,.25));
-    set('--bg1',          T.colorPrimario && mix(T.colorPrimario,.94));
-    set('--bg2',          T.colorPrimario && mix(T.colorPrimario,.86));
-    set('--bg3',          T.colorPrimario && mix(T.colorPrimario,.80));
-    set('--bg4',          T.colorSecundario && mix(T.colorSecundario,.82));
-    set('--font-bubble',  T.fuenteTitulos);
-    set('--font-script',  T.fuenteDecorativa);
-    set('--font-body',    T.fuenteTexto);
+    /* Colores y fuentes: FIJOS en el CSS (:root). El tema del panel ya NO los
+       sobrescribe, para que el look de Saju quede garantizado sin importar lo
+       que haya guardado en Firebase. Solo cargamos las fuentes de Google. */
+    void mix; void alpha; /* utilidades disponibles, sin uso por ahora */
     if (T.googleFonts){
       var gf = document.getElementById('gf-link');
       if (gf) gf.href = 'https://fonts.googleapis.com/css2?family=' + T.googleFonts + '&display=swap';
@@ -1374,9 +1386,15 @@
      claves, carga productos y categorías desde el panel
      admin (colecciones 'products' y 'categories').
   ===================================================== */
+  function hideSplash(){
+    var s = document.getElementById('sc-splash');
+    if(!s || s.classList.contains('hide')) return;
+    s.classList.add('hide');
+    setTimeout(function(){ if(s.parentNode) s.parentNode.removeChild(s); }, 450);
+  }
   function loadFromFirebase(){
     var fb = SITE_CONFIG.firebase || {};
-    if (!fb.apiKey || fb.apiKey === 'TU_API_KEY' || typeof firebase === 'undefined') return;
+    if (!fb.apiKey || fb.apiKey === 'TU_API_KEY' || typeof firebase === 'undefined') { hideSplash(); return; }
     try {
       firebase.initializeApp(fb);
       FB_DB = firebase.firestore();
@@ -1426,9 +1444,12 @@
         if (cats.length) CATEGORIES = [{ id:'todos', nombre:'Todos ✨' }].concat(cats);
         activeCat = 'todos';
         renderCats(); renderGrid(); renderCart();
-      }).catch(function(e){ console.warn('Firestore no disponible.', e); });
-    } catch(e){ console.warn('Firebase no configurado correctamente.', e); }
+        hideSplash();
+      }).catch(function(e){ console.warn('Firestore no disponible.', e); hideSplash(); });
+    } catch(e){ console.warn('Firebase no configurado correctamente.', e); hideSplash(); }
   }
+  // seguridad: nunca dejar el splash visible más de 3.5s
+  setTimeout(hideSplash, 3500);
   if (document.readyState === 'complete') loadFromFirebase();
   else window.addEventListener('load', loadFromFirebase);
 
