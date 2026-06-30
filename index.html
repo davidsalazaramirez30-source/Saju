@@ -8,6 +8,7 @@
 <title>Saju Multimarca · Tienda online ✨</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="brand_assets/banner.png" fetchpriority="high">
 <link id="gf-link" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Pacifico&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
 <!-- Firebase (opcional): solo se usa si SITE_CONFIG.firebase tiene claves -->
 <script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -1555,10 +1556,12 @@
       }).catch(function(e){ console.warn('Firestore no disponible.', e); hideSplash(); });
     } catch(e){ console.warn('Firebase no configurado correctamente.', e); hideSplash(); }
   }
-  // seguridad: nunca dejar el splash visible más de 3.5s
-  setTimeout(hideSplash, 3500);
-  if (document.readyState === 'complete') loadFromFirebase();
-  else window.addEventListener('load', loadFromFirebase);
+  // arranca la carga de Firebase apenas el DOM esté listo, SIN esperar la imagen
+  // pesada del hero (así el contenido real se aplica antes de quitar el splash y no parpadea)
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', loadFromFirebase);
+  else loadFromFirebase();
+  // red de seguridad: nunca dejar el splash visible más de 6s (sólo si Firebase no responde)
+  setTimeout(hideSplash, 6000);
 
   /* limpiar del carrito ids de productos que ya no existen */
   Object.keys(cart).forEach(function(id){ if(!findProduct(id)) delete cart[id]; });
