@@ -1507,13 +1507,21 @@
       firebase.initializeApp(fb);
       FB_DB = firebase.firestore();
       var db = FB_DB;
+
+      // 1) PRIMERO el diseño/textos (un solo documento, carga rápido). Se aplica DEBAJO del
+      //    splash y sólo entonces se destapa: así lo primero que ve el usuario ya es Firebase,
+      //    nunca la versión por defecto del HTML (aunque la conexión sea lenta).
+      db.collection('settings').doc('store-content').get()
+        .then(function(doc){ applyStoreContent(doc && doc.exists ? doc.data() : null); })
+        .catch(function(e){ console.warn('store-content no disponible.', e); })
+        .then(function(){ hideSplash(); });
+
+      // 2) LUEGO productos, categorías y marcas (pueden tardar un poco más; el diseño ya se ve).
       Promise.all([
         db.collection('categories').get(),
         db.collection('products').get(),
-        db.collection('brands').get(),
-        db.collection('settings').doc('store-content').get()
+        db.collection('brands').get()
       ]).then(function(res){
-        applyStoreContent(res[3] && res[3].exists ? res[3].data() : null);
         var cats = [];
         res[0].forEach(function(d){
           var c = d.data();
@@ -1552,16 +1560,16 @@
         if (cats.length) CATEGORIES = [{ id:'todos', nombre:'Todos ✨' }].concat(cats);
         activeCat = 'todos';
         renderCats(); renderGrid(); renderCart();
-        hideSplash();
-      }).catch(function(e){ console.warn('Firestore no disponible.', e); hideSplash(); });
+      }).catch(function(e){ console.warn('Firestore no disponible.', e); });
     } catch(e){ console.warn('Firebase no configurado correctamente.', e); hideSplash(); }
   }
   // arranca la carga de Firebase apenas el DOM esté listo, SIN esperar la imagen
   // pesada del hero (así el contenido real se aplica antes de quitar el splash y no parpadea)
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', loadFromFirebase);
   else loadFromFirebase();
-  // red de seguridad: nunca dejar el splash visible más de 6s (sólo si Firebase no responde)
-  setTimeout(hideSplash, 6000);
+  // red de seguridad: sólo se usa si Firebase NO responde nada (normalmente el splash
+  // se quita en cuanto llega el diseño desde Firebase, mucho antes de este tiempo)
+  setTimeout(hideSplash, 12000);
 
   /* limpiar del carrito ids de productos que ya no existen */
   Object.keys(cart).forEach(function(id){ if(!findProduct(id)) delete cart[id]; });
