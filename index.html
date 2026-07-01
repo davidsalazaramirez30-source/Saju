@@ -13,6 +13,14 @@
 <!-- Firebase (opcional): solo se usa si SITE_CONFIG.firebase tiene claves -->
 <script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+  /* ================= MODO MANTENIMIENTO =================
+     true  = tienda CERRADA al público (muestra "Volvemos pronto")
+     false = tienda ABIERTA con normalidad
+     Para REABRIR: cambia a false y vuelve a publicar (git push). */
+  window.MANTENIMIENTO = true;
+  if (window.MANTENIMIENTO) document.documentElement.classList.add('maintenance');
+</script>
 <style>
   :root{
     /* === PALETA SAJU (fija) ===
@@ -53,6 +61,23 @@
     background:#ffffff;transition:opacity .35s ease;}
   #sc-splash img{width:min(82vw,520px);height:auto;animation:splashPulse 1.1s ease-in-out infinite;}
   #sc-splash.hide{opacity:0;pointer-events:none;}
+  /* ===== modo mantenimiento (tienda cerrada temporalmente) ===== */
+  #maintenance{display:none;position:fixed;inset:0;z-index:100000;
+    flex-direction:column;align-items:center;justify-content:center;text-align:center;
+    padding:32px;gap:16px;font-family:var(--font-body);
+    background:radial-gradient(120% 120% at 50% 0%, #fff0f7 0%, #ecdff7 55%, #d9cdef 100%);}
+  html.maintenance #maintenance{display:flex;}
+  html.maintenance{overflow:hidden;}
+  #maintenance img{width:min(58vw,170px);height:auto;margin-bottom:4px;
+    filter:drop-shadow(0 12px 26px rgba(120,80,170,.28));}
+  #maintenance h1{font-family:var(--font-bubble);font-weight:700;color:#1a1620;
+    font-size:clamp(1.9rem,5vw,3rem);line-height:1.15;margin:0;}
+  #maintenance p{font-size:clamp(1rem,2.2vw,1.2rem);color:#6a4a7a;max-width:32ch;margin:0;line-height:1.6;}
+  #maintenance .wa{margin-top:8px;display:inline-flex;align-items:center;gap:9px;
+    background:linear-gradient(135deg,#ff8cc4,#ff4f9a);color:#fff;text-decoration:none;
+    font-family:var(--font-bubble);font-weight:700;font-size:1rem;padding:13px 26px;border-radius:999px;
+    box-shadow:0 16px 30px -10px rgba(255,79,154,.6);transition:transform .2s;}
+  #maintenance .wa:hover{transform:translateY(-2px);}
   @keyframes splashPulse{0%,100%{transform:scale(1);opacity:.82;}50%{transform:scale(1.07);opacity:1;}}
   body{
     font-family:var(--font-body);
@@ -642,6 +667,14 @@
 </style>
 </head>
 <body>
+
+<!-- pantalla de mantenimiento (solo se muestra si window.MANTENIMIENTO = true) -->
+<div id="maintenance">
+  <img src="brand_assets/logo.png" alt="Saju" onerror="this.style.display='none'">
+  <h1>Volvemos muy pronto ✨</h1>
+  <p>Estamos afinando algunos detalles de la tienda. ¡Gracias por tu paciencia! 💗</p>
+  <a class="wa" href="https://wa.me/573215878135" target="_blank" rel="noopener">Escríbenos por WhatsApp 💬</a>
+</div>
 
 <!-- splash: evita el parpadeo de textos viejos mientras carga el panel -->
 <div id="sc-splash"><img src="brand_assets/logo.png" alt="Saju" onerror="this.style.display='none'"></div>
@@ -1501,6 +1534,8 @@
     setTimeout(function(){ if(s.parentNode) s.parentNode.removeChild(s); }, 450);
   }
   function loadFromFirebase(){
+    // en modo mantenimiento no cargamos la tienda (la pantalla de "Volvemos pronto" cubre todo)
+    if (window.MANTENIMIENTO) return;
     var fb = SITE_CONFIG.firebase || {};
     if (!fb.apiKey || fb.apiKey === 'TU_API_KEY' || typeof firebase === 'undefined') { hideSplash(); return; }
     try {
