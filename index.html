@@ -180,7 +180,7 @@
     width:100vw;max-width:100vw;
     margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);
     min-height:clamp(640px,94vh,960px);display:flex;
-    background-size:cover;background-position:right center;background-repeat:no-repeat;}
+    background-color:#ecdff7;background-size:cover;background-position:right center;background-repeat:no-repeat;}
   /* velo claro a la izquierda para que el texto sea legible sobre la foto */
   .hero::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
     background:linear-gradient(100deg,
@@ -275,7 +275,7 @@
     /* en celular: imagen completa arriba, texto debajo */
     .hero{flex-direction:column;min-height:auto;background-image:none !important;background-color:#f7e7f6;}
     .hero::before{display:none;}
-    .hero-photo{display:block;width:100%;height:auto;}
+    .hero-photo{display:block;width:100%;height:auto;aspect-ratio:2/1;object-fit:cover;background:#ecdff7;}
     .hero-shell{padding:24px 20px 38px;}
     .hero-copy{margin:0 auto;max-width:560px;text-align:center;
       background:none;backdrop-filter:none;border-radius:0;padding:0;box-shadow:none;}

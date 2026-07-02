@@ -1,0 +1,4 @@
+# Evita que el navegador y Cloudflare sirvan versiones viejas del sitio.
+# El HTML siempre se revalida; las imágenes/JS se revalidan pero no se re-descargan si no cambiaron.
+/*
+  Cache-Control: public, max-age=0, must-revalidate
