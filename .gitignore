@@ -11,3 +11,6 @@ node_modules/
 package.json
 package-lock.json
 .migrar.sh
+
+# Copias de seguridad locales (contienen claves del admin)
+*.bak*
