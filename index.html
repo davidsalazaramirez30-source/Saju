@@ -975,6 +975,9 @@
   .co-field input,.co-field textarea{width:100%;border:2px solid var(--pink-soft,#ffd9ea);border-radius:14px;padding:11px 14px;font-family:var(--font-body);font-size:.92rem;color:var(--ink);background:#fff;outline:none;transition:border-color .18s;}
   .co-field input:focus,.co-field textarea:focus{border-color:var(--bubblegum);}
   .co-field textarea{resize:vertical;min-height:60px;}
+  .co-tel{display:flex;gap:8px;}
+  .co-field .co-tel #coPhoneCode{width:5.6rem;flex:none;text-align:center;}
+  .co-hint{display:block;font-size:.7rem;color:var(--ink);opacity:.65;margin-top:4px;}
   .co-err{color:#e0457a;font-size:.8rem;font-weight:600;min-height:1.1em;margin:2px 0 8px;}
   .co-total{display:flex;justify-content:space-between;align-items:center;font-family:var(--font-bubble);font-weight:700;color:var(--ink);font-size:1.1rem;margin:6px 0 14px;padding-top:12px;border-top:2px dashed var(--pink-soft,#ffd9ea);}
   .co-close{position:absolute;top:14px;right:14px;border:none;background:var(--pink-cream,#fff0f7);width:34px;height:34px;border-radius:999px;cursor:pointer;font-size:1rem;color:var(--ink);}
@@ -987,7 +990,13 @@
       <h3 data-ed="ui.checkoutTitle">Finalizar pedido 🎀</h3>
       <p class="co-intro" data-ed="ui.checkoutIntro">Déjanos tus datos y confirma. Te contactaremos para coordinar el pago y el envío. 💗</p>
       <label class="co-field"><span>Nombre completo *</span><input id="coName" type="text" autocomplete="name" placeholder="Tu nombre"></label>
-      <label class="co-field"><span>WhatsApp / Teléfono *</span><input id="coPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="Ej: 3215878135"></label>
+      <div class="co-field"><span>WhatsApp / Teléfono *</span>
+        <div class="co-tel">
+          <input id="coPhoneCode" type="tel" inputmode="tel" autocomplete="tel-country-code" aria-label="Indicativo del país" placeholder="+57">
+          <input id="coPhone" type="tel" inputmode="tel" autocomplete="tel-national" aria-label="Número de WhatsApp" placeholder="Ej: 3215878135">
+        </div>
+        <small class="co-hint">Incluye el indicativo de tu país (Colombia: +57).</small>
+      </div>
       <label class="co-field"><span>Ciudad *</span><input id="coCity" type="text" autocomplete="address-level2" placeholder="Tu ciudad"></label>
       <label class="co-field"><span>Dirección de entrega *</span><input id="coAddress" type="text" autocomplete="street-address" placeholder="Calle, número, barrio…"></label>
       <label class="co-field"><span>Notas (opcional)</span><textarea id="coNotes" placeholder="Indicaciones para la entrega"></textarea></label>
@@ -1028,6 +1037,7 @@
     /* ── Contacto ──────────────────────────────────── */
     whatsapp:    '573215878135',     // con código de país, sin +
     instagram:   'sajumultimarca',
+    indicativoTel: '+57',            // indicativo que aparece ya puesto en el checkout
 
     /* ── Tema visual (todo el diseño sale de aquí) ─── */
     theme: {
@@ -1310,6 +1320,7 @@
     if(Object.keys(cart).length === 0){ showToast('Tu carrito está vacío 🥺'); return; }
     $('#coTotal').textContent = fmtCOP(cartTotal());
     $('#coErr').textContent = '';
+    if(!$('#coPhoneCode').value) $('#coPhoneCode').value = SITE_CONFIG.indicativoTel || '';
     $('#coForm').style.display = '';
     $('#coSuccess').style.display = 'none';
     $('#coSubmit').disabled = false;
@@ -1325,13 +1336,17 @@
 
   window.submitOrder = function(){
     var name    = $('#coName').value.trim();
-    var phone   = $('#coPhone').value.trim();
+    var phoneNum  = $('#coPhone').value.trim();
+    var phoneCode = $('#coPhoneCode').value.replace(/[^0-9]/g,'');
     var city    = $('#coCity').value.trim();
     var address = $('#coAddress').value.trim();
     var notes   = $('#coNotes').value.trim();
     var err = $('#coErr');
     if(!name){ err.textContent = 'Escribe tu nombre.'; return; }
-    if(phone.replace(/[^0-9]/g,'').length < 7){ err.textContent = 'Escribe un teléfono válido.'; return; }
+    // si la persona escribió el número completo con "+", se respeta tal cual
+    var phone = phoneNum.charAt(0) === '+' ? phoneNum : (phoneCode ? '+' + phoneCode + ' ' : '') + phoneNum;
+    if(phoneNum.charAt(0) !== '+' && !phoneCode){ err.textContent = 'Escribe el indicativo de tu país (ej: +57).'; return; }
+    if(phoneNum.replace(/[^0-9]/g,'').length < 7){ err.textContent = 'Escribe un teléfono válido.'; return; }
     if(!city){ err.textContent = 'Escribe tu ciudad.'; return; }
     if(!address){ err.textContent = 'Escribe tu dirección de entrega.'; return; }
     err.textContent = '';
