@@ -8,7 +8,7 @@
 <title>Saju Multimarca · Tienda online ✨</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="image" href="brand_assets/banner.png" fetchpriority="high">
+<link rel="preload" as="image" href="brand_assets/banner.jpg" fetchpriority="high">
 <link id="gf-link" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Pacifico&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
 <!-- Firebase (opcional): solo se usa si SITE_CONFIG.firebase tiene claves -->
 <script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -275,7 +275,7 @@
     /* en celular: imagen completa arriba, texto debajo */
     .hero{flex-direction:column;min-height:auto;background-image:none !important;background-color:#f7e7f6;}
     .hero::before{display:none;}
-    .hero-photo{display:block;width:100%;height:auto;aspect-ratio:2/1;object-fit:cover;background:#ecdff7;}
+    .hero-photo{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;background:#ecdff7;}
     .hero-shell{padding:24px 20px 38px;}
     .hero-copy{margin:0 auto;max-width:560px;text-align:center;
       background:none;backdrop-filter:none;border-radius:0;padding:0;box-shadow:none;}
@@ -828,8 +828,8 @@
 </header>
 
 <!-- HERO (portada a todo el ancho, responsive) -->
-<section class="hero" id="sec-hero" style="background-image:url('brand_assets/banner.png')">
-  <img class="hero-photo" src="brand_assets/banner.png" alt="Saju Multimarca — belleza, cabello y skincare" aria-hidden="true">
+<section class="hero" id="sec-hero" style="background-image:url('brand_assets/banner.jpg')">
+  <img class="hero-photo" src="brand_assets/banner.jpg" alt="Saju Multimarca — belleza, cabello y skincare" aria-hidden="true">
   <div class="hero-shell">
 
     <!-- copy -->
